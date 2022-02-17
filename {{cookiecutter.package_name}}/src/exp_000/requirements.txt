@@ -1,0 +1,17 @@
+albumentations
+opencv-python
+numpy
+torch
+torchvision
+torchaudio
+tqdm
+pandas
+scikit-learn
+timm
+transformers
+warmup_scheduler
+hydra-core
+wandb
+matplotlib
+pytorch-lightning
+pytorch-gradcam
