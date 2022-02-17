@@ -14,4 +14,4 @@ hydra-core
 wandb
 matplotlib
 pytorch-lightning
-pytorch-gradcam
+grad-cam
