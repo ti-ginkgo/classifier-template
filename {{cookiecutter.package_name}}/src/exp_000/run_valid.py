@@ -7,8 +7,11 @@ warnings.filterwarnings("ignore")
 
 
 def main(args):
-    validator = Validator(config_name=args.config_name)
-    validator.oof(args.ckpt)
+    validator = Validator(
+        config_name=args.config_name, ckpt=args.ckpt, batch_size=args.batch_size
+    )
+    validator.run_oof()
+    validator.run_cam()
 
 
 def parse_args():

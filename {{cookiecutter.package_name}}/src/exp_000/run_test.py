@@ -7,9 +7,10 @@ warnings.filterwarnings("ignore")
 
 
 def main(args):
-    tester = Tester(config_name=args.config_name, batch_size=args.batch_size)
-    tester.inference(args.ckpt)
-    tester.save()
+    tester = Tester(
+        config_name=args.config_name, ckpt=args.ckpt, batch_size=args.batch_size
+    )
+    tester.run_inference()
 
 
 def parse_args():
