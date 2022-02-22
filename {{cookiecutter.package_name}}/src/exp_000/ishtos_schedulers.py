@@ -75,3 +75,5 @@ def get_scheduler(optimizer, config, len_train_loader=0):
         )
     elif scheduler_name == "ReduceLROnPlateau":
         return ReduceLROnPlateau(optimizer, **config.ReduceLROnPlateau.params)
+    else:
+        raise ValueError(f"Not supported scheduler: {scheduler_name}.")

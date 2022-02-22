@@ -97,6 +97,8 @@ def get_base_loss(base_loss_name, reduction):
         return nn.SmoothL1Loss(reduction=reduction)
     elif base_loss_name == "RMSELoss":
         return RMSELoss(reduction=reduction)
+    else:
+        raise ValueError(f"Not supported base loss: {base_loss_name}.")
 
 
 # --------------------------------------------------
@@ -132,3 +134,5 @@ def get_loss(config):
         return RMSELoss(**config.RMSELoss.params)
     elif loss_name == "SmoothL1Loss":
         return nn.SmoothL1Loss(**config.SmoothL1Loss.params)
+    else:
+        raise ValueError(f"Not supported loss: {loss_name}.")

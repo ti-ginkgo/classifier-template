@@ -6,8 +6,6 @@ from ishtos_losses import get_loss
 from ishtos_metrics import get_metric
 from ishtos_models import get_model
 from ishtos_optimizers import get_optimizer
-
-
 from ishtos_schedulers import get_scheduler
 
 

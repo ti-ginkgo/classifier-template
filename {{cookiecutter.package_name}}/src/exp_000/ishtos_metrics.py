@@ -18,3 +18,5 @@ def get_metric(config):
         )
     elif metric_name == "MeanSquaredLogError":
         return torchmetrics.MeanSquaredLogError()
+    else:
+        raise ValueError(f"Not supported metric: {metric_name}.")

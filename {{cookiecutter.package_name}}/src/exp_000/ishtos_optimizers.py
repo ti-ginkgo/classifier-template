@@ -244,3 +244,5 @@ def get_optimizer(parameters, config):
             return SAM(parameters, SGD, **config.SGD.params)
     elif optimizer_name == "SGD":
         return SGD(parameters, **config.SGD.params)
+    else:
+        raise ValueError(f"Not supported optimizer: {optimizer_name}.")

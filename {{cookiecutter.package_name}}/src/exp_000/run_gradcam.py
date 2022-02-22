@@ -23,8 +23,7 @@ warnings.filterwarnings("ignore")
 
 def load_config(args):
     with initialize(
-        config_path=os.path.join("."),
-        job_name="config",
+        config_path=os.path.join("."), job_name="config",
     ):
         config = compose(config_name=args.config)
     config.dataset.loader.batch_size = args.batch_size
@@ -37,9 +36,7 @@ def load_df(config):
     df = pd.read_csv(os.path.join(config.dataset.base_dir, config.dataset.train_df))
 
     skf = StratifiedKFold(
-        n_splits=config.train.n_splits,
-        shuffle=True,
-        random_state=config.general.seed,
+        n_splits=config.train.n_splits, shuffle=True, random_state=config.general.seed,
     )
     for n, (_, val_index) in enumerate(skf.split(df, df[config.dataset.target].values)):
         df.loc[val_index, "fold"] = int(n)
@@ -68,7 +65,7 @@ def load_dataloader(config, df, phase):
         num_workers=config.dataset.loader.num_workers,
         shuffle=False,
         drop_last=False,
-        pin_memory=False,
+        pin_memory=True,
     )
     return dataloader
 
