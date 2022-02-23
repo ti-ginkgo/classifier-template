@@ -5,6 +5,7 @@ import warnings
 import torch
 import wandb
 from hydra import compose, initialize
+from omegaconf import OmegaConf
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import (
     EarlyStopping,
@@ -49,53 +50,53 @@ def get_loggers(config, fold):
     return loggers
 
 
-def get_callbacks(config, fold):
+def get_callback(config, fold):
     callbacks = []
-    if config.callbacks.early_stopping.enable:
+    if config.callback.early_stopping.enable:
         early_stopping = EarlyStopping(
-            monitor=config.callbacks.early_stopping.monitor,
-            patience=config.callbacks.early_stopping.patience,
-            verbose=config.callbacks.early_stopping.verbose,
-            mode=config.callbacks.early_stopping.mode,
-            strict=config.callbacks.early_stopping.strict,
-            check_finite=config.callbacks.early_stopping.check_finite,
-            check_on_train_epoch_end=config.callbacks.early_stopping.check_on_train_epoch_end,
+            monitor=config.callback.early_stopping.monitor,
+            patience=config.callback.early_stopping.patience,
+            verbose=config.callback.early_stopping.verbose,
+            mode=config.callback.early_stopping.mode,
+            strict=config.callback.early_stopping.strict,
+            check_finite=config.callback.early_stopping.check_finite,
+            check_on_train_epoch_end=config.callback.early_stopping.check_on_train_epoch_end,
         )
         callbacks.append(early_stopping)
 
-    if config.callbacks.model_loss_checkpoint.enable:
+    if config.callback.model_loss_checkpoint.enable:
         model_loss_checkpoint = ModelCheckpoint(
             dirpath=os.path.join(
-                config.general.exp_dir, config.callbacks.model_loss_checkpoint.dirpath
+                config.general.exp_dir, config.callback.model_loss_checkpoint.dirpath
             ),
-            filename=f"{config.callbacks.model_loss_checkpoint.filename}-{fold}",
-            monitor=config.callbacks.model_loss_checkpoint.monitor,
-            verbose=config.callbacks.model_loss_checkpoint.verbose,
-            save_last=config.callbacks.model_loss_checkpoint.save_last,
-            save_top_k=config.callbacks.model_loss_checkpoint.save_top_k,
-            mode=config.callbacks.model_loss_checkpoint.mode,
-            save_weights_only=config.callbacks.model_loss_checkpoint.save_weights_only,
+            filename=f"{config.callback.model_loss_checkpoint.filename}-{fold}",
+            monitor=config.callback.model_loss_checkpoint.monitor,
+            verbose=config.callback.model_loss_checkpoint.verbose,
+            save_last=config.callback.model_loss_checkpoint.save_last,
+            save_top_k=config.callback.model_loss_checkpoint.save_top_k,
+            mode=config.callback.model_loss_checkpoint.mode,
+            save_weights_only=config.callback.model_loss_checkpoint.save_weights_only,
         )
         callbacks.append(model_loss_checkpoint)
 
-    if config.callbacks.model_score_checkpoint.enable:
+    if config.callback.model_score_checkpoint.enable:
         model_score_checkpoint = ModelCheckpoint(
             dirpath=os.path.join(
-                config.general.exp_dir, config.callbacks.model_score_checkpoint.dirpath
+                config.general.exp_dir, config.callback.model_score_checkpoint.dirpath
             ),
-            filename=f"{config.callbacks.model_score_checkpoint.filename}-{fold}",
-            monitor=config.callbacks.model_score_checkpoint.monitor,
-            verbose=config.callbacks.model_score_checkpoint.verbose,
-            save_last=config.callbacks.model_score_checkpoint.save_last,
-            save_top_k=config.callbacks.model_score_checkpoint.save_top_k,
-            mode=config.callbacks.model_score_checkpoint.mode,
-            save_weights_only=config.callbacks.model_score_checkpoint.save_weights_only,
+            filename=f"{config.callback.model_score_checkpoint.filename}-{fold}",
+            monitor=config.callback.model_score_checkpoint.monitor,
+            verbose=config.callback.model_score_checkpoint.verbose,
+            save_last=config.callback.model_score_checkpoint.save_last,
+            save_top_k=config.callback.model_score_checkpoint.save_top_k,
+            mode=config.callback.model_score_checkpoint.mode,
+            save_weights_only=config.callback.model_score_checkpoint.save_weights_only,
         )
         callbacks.append(model_score_checkpoint)
 
-    if config.callbacks.lr_monitor.enable:
+    if config.callback.lr_monitor.enable:
         lr_monitor = LearningRateMonitor(
-            logging_interval=config.callbacks.lr_monitor.logging_interval
+            logging_interval=config.callback.lr_monitor.logging_interval
         )
         callbacks.append(lr_monitor)
 
@@ -105,9 +106,11 @@ def get_callbacks(config, fold):
 def main(args):
     fold = args.fold
     torch.autograd.set_detect_anomaly(True)
-    with initialize(config_path=".", job_name="config"):
-        config = compose(config_name="config.yaml")
+    with initialize(config_path="configs", job_name="config"):
+        config = compose(config_name=args.config)
 
+    print(OmegaConf.to_yaml(config))
+    return
     os.makedirs(config.general.exp_dir, exist_ok=True)
     seed_everything(config.general.seed)
 

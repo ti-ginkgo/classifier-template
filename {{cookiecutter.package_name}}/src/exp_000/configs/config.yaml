@@ -1,0 +1,93 @@
+general:
+  debug: false
+  seed: 42
+  exp_dir: ./outputs
+
+train:
+  n_splits: 5
+  mixup:
+    enable: true
+    alpha: 1
+    duration: 0
+    p: 0.5
+
+logger:
+  csv_logger:
+    enable: true
+    save_dir: logs
+    name: csv_logger
+    version: fold
+
+  wandb_logger:
+    enable: True
+    entity: ishtos
+    save_dir: .
+    name: fold
+    offline: false
+    # project: {{ cookiecutter.project }}
+    log_model: all # ['all', true, false]
+    group: exp_000
+
+trainer:
+  accumulate_grad_batches: 1
+  amp_backend: native
+  benchmark: false
+  deteministic: true
+  gpus: 1
+  gradient_clip_val: 0
+  gradient_clip_algorithm: norm
+  precision: 16
+  max_epochs: 20 # schduler
+  resume_from_checkpoint: None
+  stochastic_weight_avg: false
+
+dataset:
+  base_dir: ../../data
+  train_df: train.csv
+  image_dir: train
+  test_df: sample_submission.csv
+  test_image_dir: test
+  target: label
+  store_train: true
+  store_valid: true
+  grayscale: false
+  gradcam: false
+  loader:
+    batch_size: 32
+    num_workers: 8
+
+transforms:
+  train_version: v1
+  valid_version: v1
+  params:
+    height: 384
+    width: 384
+    p: 0.5
+
+model:
+  name: convnext
+  params:
+    base_model: convnext_xlarge_384_in22ft1k
+    pretrained: true
+    my_pretrained:
+    num_classes: 1
+    head_version: v1
+
+defaults:
+  - callback: base_callback_params
+  - optimizer: base_optimizer_params
+  - scheduler: base_scheduler_params
+  - loss: base_loss_params
+  - metric: base_metric_params
+
+optimizer:
+  name: AdamW
+
+scheduler:
+  name: CosineAnnealingWarmRestarts
+
+loss:
+  name: CrossEntropyLoss
+
+metric:
+  name: AUROC

@@ -1,0 +1,6 @@
+AUROC:
+  params:
+    num_classes: 1
+MeanSquaredError:
+  params:
+    squared: false
