@@ -11,7 +11,9 @@ def main(args):
         config_name=args.config_name, ckpt=args.ckpt, batch_size=args.batch_size
     )
     validator.run_oof()
-    validator.run_cam()
+
+    if args.cam:
+        validator.run_cam()
 
 
 def parse_args():
@@ -19,6 +21,8 @@ def parse_args():
     parser.add_argument("--config_name", type=str, default="config.yaml")
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--ckpt", type=str, default="loss")
+    parser.add_argument("--cam", action="store_true")
+
     return parser.parse_args()
 
 
