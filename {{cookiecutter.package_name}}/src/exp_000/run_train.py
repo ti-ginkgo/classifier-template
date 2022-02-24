@@ -5,7 +5,6 @@ import warnings
 import torch
 import wandb
 from hydra import compose, initialize
-from omegaconf import OmegaConf
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import (
     EarlyStopping,
