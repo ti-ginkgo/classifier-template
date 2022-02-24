@@ -50,7 +50,7 @@ def get_loggers(config, fold):
     return loggers
 
 
-def get_callback(config, fold):
+def get_callbacks(config, fold):
     callbacks = []
     if config.callback.early_stopping.enable:
         early_stopping = EarlyStopping(
@@ -109,8 +109,6 @@ def main(args):
     with initialize(config_path="configs", job_name="config"):
         config = compose(config_name=args.config)
 
-    print(OmegaConf.to_yaml(config))
-    return
     os.makedirs(config.general.exp_dir, exist_ok=True)
     seed_everything(config.general.seed)
 

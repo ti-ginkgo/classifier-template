@@ -1,3 +1,10 @@
+defaults:
+  - callback: base_callback_params
+  - optimizer: base_optimizer_params
+  - scheduler: base_scheduler_params
+  - loss: base_loss_params
+  - metric: base_metric_params
+
 general:
   debug: false
   seed: 42
@@ -72,13 +79,6 @@ model:
     my_pretrained:
     num_classes: 1
     head_version: v1
-
-defaults:
-  - callback: base_callback_params
-  - optimizer: base_optimizer_params
-  - scheduler: base_scheduler_params
-  - loss: base_loss_params
-  - metric: base_metric_params
 
 optimizer:
   name: AdamW
