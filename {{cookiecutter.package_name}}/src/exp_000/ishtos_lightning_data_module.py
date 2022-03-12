@@ -2,10 +2,37 @@ import os
 
 import pandas as pd
 from pytorch_lightning import LightningDataModule
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import GroupKFold, StratifiedKFold
 from torch.utils.data import DataLoader
 
 from ishtos_datasets import get_dataset
+
+
+def split_folds(df, config):
+    df["fold"] = -1
+
+    fold_name = config.dataset.fold.name
+    if fold_name == "GroupKFold":
+        gkf = GroupKFold(n_splits=config.dataset.fold.n_splits)
+        split_iter = gkf.split(
+            df,
+            y=df[config.dataset.target].values,
+            groups=df[config.dataset.fold.group].values,
+        )
+    elif fold_name == "StratifiedKFold":
+        skf = StratifiedKFold(
+            n_splits=config.dataset.fold.n_splits,
+            shuffle=True,
+            random_state=config.general.seed,
+        )
+        split_iter = skf.split(df, y=df[config.dataset.target].values)
+    else:
+        raise ValueError(f"Not supported fold: {fold_name}.")
+
+    for fold, (_, valid_idx) in enumerate(split_iter):
+        df.loc[valid_idx] = fold
+
+    return df
 
 
 class MyLightningDataModule(LightningDataModule):
@@ -19,15 +46,7 @@ class MyLightningDataModule(LightningDataModule):
             os.path.join(self.config.dataset.base_dir, self.config.dataset.train_df)
         )
 
-        skf = StratifiedKFold(
-            n_splits=self.config.train.n_splits,
-            shuffle=True,
-            random_state=self.config.general.seed,
-        )
-        for n, (_, val_index) in enumerate(
-            skf.split(df, df[self.config.dataset.target].values)
-        ):
-            df.loc[val_index, "fold"] = int(n)
+        df = split_folds(df, self.config)
 
         train_df = df[df["fold"] != self.fold].reset_index(drop=True)
         valid_df = df[df["fold"] == self.fold].reset_index(drop=True)
