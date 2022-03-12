@@ -42,7 +42,7 @@ class MyLightningModule(LightningModule):
 
     def __step(self, batch, phase):
         images, target = batch
-        if do_mixup():
+        if do_mixup(phase, self.current_epoch, self.config):
             images, target_a, target_b, lam = mixup_data(images, target)
             logits = self.model(images).squeeze(1)
             loss = mixup_loss(self.loss, logits, target_a, target_b, lam)
