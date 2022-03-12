@@ -31,7 +31,7 @@ logger:
     save_dir: .
     name: fold
     offline: false
-    # project: {{ cookiecutter.project }}
+    project: {{ cookiecutter.project }}
     log_model: all # ['all', true, false]
     group: exp_000
 
