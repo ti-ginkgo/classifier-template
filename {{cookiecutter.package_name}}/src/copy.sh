@@ -5,4 +5,4 @@ mkdir $target
 cp $src/*.py $target
 cp $src/*.yaml $target
 cp $src/*.sh $target
-cp $src/*.txt $target
+cp -r $src/configs $target
