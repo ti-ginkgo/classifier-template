@@ -113,7 +113,7 @@ class Validator(Runner):
         for fold in range(self.config.train.n_splits):
             valid_df = self.df[self.df["fold"] == fold].reset_index(drop=True)
             model = self.models[fold]
-            dataloader = self.load_dataloader(self.config, valid_df, "valid")
+            dataloader = self.load_dataloader(valid_df, "valid")
             inferences[valid_df.index] = self.inference(model, dataloader)
 
         self.inferences = inferences
@@ -161,7 +161,7 @@ class Validator(Runner):
         for fold in range(self.config.train.n_splits):
             valid_df = self.df[self.df["fold"] == fold].reset_index(drop=True)
             model = self.models[fold]
-            dataloader = self.load_dataloader(self.config, valid_df, "valid", False)
+            dataloader = self.load_dataloader(valid_df, "valid", False)
             cam = self.load_cam(
                 model,
                 target_layers=self.get_target_layers(self.config.model.name, model),
@@ -217,7 +217,7 @@ class Tester(Runner):
         inferences = np.zeros((len(self.df), self.config.model.params.num_classes))
         for fold in range(self.config.train.n_split):
             model = self.models[fold]
-            dataloader = self.load_dataloader(self.config, self.df, "test")
+            dataloader = self.load_dataloader(self.df, "test")
             inferences += self.inference(model, dataloader)
         inferences = inferences / self.config.train.n_split
 
