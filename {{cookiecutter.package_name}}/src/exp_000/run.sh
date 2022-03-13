@@ -1,3 +1,7 @@
+echo "START PREPROCESS --->"
+python run_preprocess.py --config_name config.yaml
+echo "<--- END PREPROCESS"
+
 echo "START TRAIN --->"
 for i in `seq 0 4`
 do
