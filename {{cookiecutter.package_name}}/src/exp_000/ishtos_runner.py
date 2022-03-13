@@ -2,7 +2,7 @@ import os
 from abc import abstractmethod
 from collections import OrderedDict
 
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
