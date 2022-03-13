@@ -91,9 +91,6 @@ class Runner:
 
 
 class Validator(Runner):
-    def __init__(self):
-        super(Validator, self).__init__()
-
     def load_df(self):
         df = pd.read_csv(
             os.path.join(self.config.dataset.base_dir, self.config.dataset.train_df)
@@ -209,9 +206,6 @@ def reshape_transform(tensor, height=12, width=12):
 
 
 class Tester(Runner):
-    def __init__(self):
-        super(Tester, self).__init__()
-
     def load_df(self):
         df = pd.read_csv(
             os.path.join(self.config.dataset.base_dir, self.config.dataset.test_df)
