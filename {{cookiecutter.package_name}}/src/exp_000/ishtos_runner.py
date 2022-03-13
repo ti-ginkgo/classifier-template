@@ -131,7 +131,8 @@ class Validator(Runner):
 
     def save_oof(self):
         df = self.df.copy()
-        df["oof"] = self.oofs
+        for i in range(self.config.model.params.num_classes):
+            df[f"oof_{i}"] = self.oofs[:, i]
         df.to_csv(
             os.path.join(self.config.general.exp_dir, f"oof_{self.ckpt}.csv"),
             index=False,
