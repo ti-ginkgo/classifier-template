@@ -197,7 +197,7 @@ class Validator(Runner):
         return original_images, grayscale_cams, preds, labels
 
     def save_cam(self, original_images, grayscale_cams, preds, labels, fold):
-        fig = plt.figure(figsize=(8, 8))
+        fig = plt.figure(figsize=(32, 32))
         batch_size = self.config.dataset.loader.batch_size
         for i, (image, grayscale_cam, pred, label) in enumerate(
             zip(original_images, grayscale_cams, preds, labels)
