@@ -179,8 +179,10 @@ class Validator(Runner):
                 reshape_transform=self.get_reshape_transform(self.config.model.name),
             )
             transforms = get_transforms(self.config, "valid")
-            results = self.inference_cam(model, dataloader, transforms, cam)
-            self.save_cam(results, fold)
+            original_images, grayscale_cams, preds, labels = self.inference_cam(
+                model, dataloader, transforms, cam
+            )
+            self.save_cam(original_images, grayscale_cams, preds, labels, fold)
 
     def inference_cam(self, model, dataloader, transforms, cam):
         original_images, targets = iter(dataloader).next()
@@ -190,14 +192,16 @@ class Validator(Runner):
         logits = model(images.to("cuda")).squeeze(1)
         preds = torch.argmax(logits, dim=1).detach().cpu().numpy()
         labels = targets.detach().cpu().numpy()
-        grayscale_cam = cam(input_tensor=images, targets=None, eigen_smooth=True)
+        grayscale_cams = cam(input_tensor=images, targets=None, eigen_smooth=True)
         original_images = original_images.detach().cpu().numpy() / 255.0
-        return original_images, grayscale_cam, preds, labels
+        return original_images, grayscale_cams, preds, labels
 
-    def save_cam(self, results, fold):
+    def save_cam(self, original_images, grayscale_cams, preds, labels, fold):
         fig = plt.figure(figsize=(8, 8))
         batch_size = self.config.dataset.loader.batch_size
-        for i, (image, grayscale_cam, pred, label) in enumerate(results):
+        for i, (image, grayscale_cam, pred, label) in enumerate(
+            zip(original_images, grayscale_cams, preds, labels)
+        ):
             plt.subplot(batch_size, 4, i + 1)
             visualization = show_cam_on_image(image, grayscale_cam)
             plt.imshow(visualization)
