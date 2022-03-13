@@ -84,7 +84,7 @@ class Runner:
         with torch.inference_mode():
             for images in tqdm(dataloader):
                 logits = model(images.to("cuda")).squeeze(1)
-                preds = torch.sigmoid(logits).cpu().numpy()
+                preds = logits.softmax(dim=1).cpu().numpy()
                 inferences.append(preds)
 
         return np.concatenate(inferences)
