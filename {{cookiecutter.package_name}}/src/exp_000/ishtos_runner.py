@@ -31,7 +31,7 @@ class Runner:
         self.__load_models(ckpt)
 
     def __load_config(self, config_name, batch_size):
-        with initialize(config_path=".", job_name="config"):
+        with initialize(config_path="configs", job_name="config"):
             config = compose(config_name=config_name)
         config.dataset.loader.batch_size = batch_size
         config.dataset.store_valid = False
