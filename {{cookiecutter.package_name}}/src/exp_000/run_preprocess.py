@@ -6,6 +6,14 @@ from hydra import compose, initialize
 from sklearn.model_selection import GroupKFold, StratifiedKFold
 
 
+def preprocess(df, config):
+    df["image_path"] = df[config.dataset.id].apply(
+        lambda x: os.path.join(config.dataset.base_dir, config.dataset.image_dir, x)
+    )
+
+    return df
+
+
 def split_folds(df, config):
     df["fold"] = -1
 
@@ -37,10 +45,10 @@ def main(args):
     with initialize(config_path="configs", job_name="config"):
         config = compose(config_name=args.config_name)
 
-    csv_path = os.path.join(config.dataset.base_dir, config.dataset.train_df)
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(os.path.join(config.dataset.base_dir, config.dataset.train_df))
+    df = preprocess(df, config)
     df = split_folds(df, config)
-    df.to_csv(csv_path, index=False)
+    df.to_csv(config.dataset.train_df, index=False)
 
 
 def parse_args():

@@ -14,9 +14,7 @@ class MyLightningDataModule(LightningDataModule):
         self.fold = fold
 
     def _split_train_and_valid_df(self):
-        df = pd.read_csv(
-            os.path.join(self.config.dataset.base_dir, self.config.dataset.train_df)
-        )
+        df = pd.read_csv(self.config.dataset.train_df)
 
         train_df = df[df["fold"] != self.fold].reset_index(drop=True)
         valid_df = df[df["fold"] == self.fold].reset_index(drop=True)

@@ -53,11 +53,12 @@ dataset:
   image_dir: train
   test_df: sample_submission.csv
   test_image_dir: test
+  id: id
+  target: label
   fold:
     name: StratifiedKFold
     n_splits: 5
-    group:
-  target: label
+    group: # For GroupKFold
   store_train: true
   store_valid: true
   grayscale: false
