@@ -106,7 +106,7 @@ def main(args):
     fold = args.fold
     torch.autograd.set_detect_anomaly(True)
     with initialize(config_path="configs", job_name="config"):
-        config = compose(config_name=args.config)
+        config = compose(config_name=args.config_name)
 
     os.makedirs(config.general.exp_dir, exist_ok=True)
     seed_everything(config.general.seed)
@@ -152,7 +152,7 @@ def main(args):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", type=str, required=True)
+    parser.add_argument("--config_name", type=str, required=True)
     parser.add_argument("--fold", type=int, default=0)
     return parser.parse_args()
 
