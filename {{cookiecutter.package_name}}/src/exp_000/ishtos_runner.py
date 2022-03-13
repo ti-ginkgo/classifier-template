@@ -79,6 +79,16 @@ class Runner:
 
         return dataloader
 
+    def oof(self, model, dataloader):
+        inferences = []
+        with torch.inference_mode():
+            for images, _ in tqdm(dataloader):
+                logits = model(images.to("cuda")).squeeze(1)
+                preds = logits.softmax(dim=1).cpu().numpy()
+                inferences.append(preds)
+
+        return np.concatenate(inferences)
+
     def inference(self, model, dataloader):
         inferences = []
         with torch.inference_mode():
@@ -109,19 +119,19 @@ class Validator(Runner):
         self.df = df
 
     def run_oof(self):
-        inferences = np.zeros((len(self.df), self.config.model.params.num_classes))
+        oofs = np.zeros((len(self.df), self.config.model.params.num_classes))
         for fold in range(self.config.train.n_splits):
             valid_df = self.df[self.df["fold"] == fold].reset_index(drop=True)
             model = self.models[fold]
             dataloader = self.load_dataloader(valid_df, "valid")
-            inferences[valid_df.index] = self.inference(model, dataloader)
+            oofs[valid_df.index] = self.oof(model, dataloader)
 
-        self.inferences = inferences
+        self.inferences = oofs
         self.save_oof()
 
     def save_oof(self):
         df = self.df.copy()
-        df["oof"] = self.inferences
+        df["oof"] = self.oofs
         df.to_csv(
             os.path.join(self.config.general.exp_dir, f"oof_{self.ckpt}.csv"),
             index=False,
