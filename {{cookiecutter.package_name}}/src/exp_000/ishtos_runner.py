@@ -190,9 +190,7 @@ class Validator(Runner):
         logits = model(images.to("cuda")).squeeze(1)
         preds = torch.argmax(logits, dim=1).detach().cpu().numpy()
         labels = targets.detach().cpu().numpy()
-        grayscale_cam = cam(
-            input_tensor=images, target_category=None, eigen_smooth=True
-        )
+        grayscale_cam = cam(input_tensor=images, targets=None, eigen_smooth=True)
         original_images = original_images.detach().cpu().numpy() / 255.0
         return original_images, grayscale_cam, preds, labels
 
