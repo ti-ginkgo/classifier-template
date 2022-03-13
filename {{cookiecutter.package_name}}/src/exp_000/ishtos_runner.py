@@ -26,11 +26,11 @@ class Runner:
         self.init(config_name, ckpt, batch_size)
 
     def init(self, config_name, ckpt, batch_size):
-        self.__load_config(config_name, batch_size)
-        self.__load_df()
-        self.__load_models(ckpt)
+        self.load_config(config_name, batch_size)
+        self.load_df()
+        self.load_models(ckpt)
 
-    def __load_config(self, config_name, batch_size):
+    def load_config(self, config_name, batch_size):
         with initialize(config_path="configs", job_name="config"):
             config = compose(config_name=config_name)
         config.dataset.loader.batch_size = batch_size
@@ -39,10 +39,10 @@ class Runner:
         self.config = config
 
     @abstractmethod
-    def __load_df(self):
+    def load_df(self):
         pass
 
-    def __load_model(self, fold, ckpt):
+    def load_model(self, fold, ckpt):
         model = get_model(self.config.model)
         state_dict = OrderedDict()
         ckpt_path = os.path.join(
@@ -57,16 +57,16 @@ class Runner:
 
         return model
 
-    def __load_models(self, ckpt):
+    def load_models(self, ckpt):
         self.ckpt = ckpt
         models = []
         for fold in range(self.config.train.n_splits):
-            model = self.__load_model(fold, ckpt)
+            model = self.load_model(fold, ckpt)
             models.append(model)
 
         self.models = models
 
-    def __load_dataloader(self, df, phase, apply_transforms=True):
+    def load_dataloader(self, df, phase, apply_transforms=True):
         dataset = get_dataset(self.config, df, phase, apply_transforms)
         dataloader = DataLoader(
             dataset,
@@ -79,7 +79,7 @@ class Runner:
 
         return dataloader
 
-    def __inference(self, model, dataloader):
+    def inference(self, model, dataloader):
         inferences = []
         with torch.inference_mode():
             for images in tqdm(dataloader):
@@ -113,8 +113,8 @@ class Validator(Runner):
         for fold in range(self.config.train.n_splits):
             valid_df = self.df[self.df["fold"] == fold].reset_index(drop=True)
             model = self.models[fold]
-            dataloader = self.__load_dataloader(self.config, valid_df, "valid")
-            inferences[valid_df.index] = self.__inference(model, dataloader)
+            dataloader = self.load_dataloader(self.config, valid_df, "valid")
+            inferences[valid_df.index] = self.inference(model, dataloader)
 
         self.inferences = inferences
         self.save_oof()
@@ -161,7 +161,7 @@ class Validator(Runner):
         for fold in range(self.config.train.n_splits):
             valid_df = self.df[self.df["fold"] == fold].reset_index(drop=True)
             model = self.models[fold]
-            dataloader = self.__load_dataloader(self.config, valid_df, "valid", False)
+            dataloader = self.load_dataloader(self.config, valid_df, "valid", False)
             cam = self.load_cam(
                 model,
                 target_layers=self.get_target_layers(self.config.model.name, model),
@@ -217,8 +217,8 @@ class Tester(Runner):
         inferences = np.zeros((len(self.df), self.config.model.params.num_classes))
         for fold in range(self.config.train.n_split):
             model = self.models[fold]
-            dataloader = self.__load_dataloader(self.config, self.df, "test")
-            inferences += self.__inference(model, dataloader)
+            dataloader = self.load_dataloader(self.config, self.df, "test")
+            inferences += self.inference(model, dataloader)
         inferences = inferences / self.config.train.n_split
 
         self.inferences = inferences
