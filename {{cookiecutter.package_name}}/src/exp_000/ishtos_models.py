@@ -13,6 +13,34 @@ class HeadV1(nn.Module):
 
 
 # --------------------------------------------------
+# ResNet
+# - resnet18, 26, 34, 50, 101, 152, 200
+# - resnet18d, 26, 34, 50, 101, 152, 200
+# --------------------------------------------------
+class ResNet(nn.Module):
+    def __init__(
+        self,
+        base_model="resnet18",
+        pretrained=True,
+        my_pretrained=None,
+        num_classes=1,
+        head_version="v1",
+    ):
+        super(ResNet, self).__init__()
+        self.model = timm.create_model(base_model, pretrained=pretrained)
+        if my_pretrained:
+            self.model.load_state_dict(torch.load(my_pretrained))
+        in_features = self.model.fc.in_features
+        self.model.fc = get_head(
+            version=head_version, in_features=in_features, out_features=num_classes
+        )
+
+    def forward(self, x):
+        x = self.model(x)
+        return x
+
+
+# --------------------------------------------------
 # ConvNeXt
 # - convnext_tiny, small, base, large
 # - convnext_base_in22ft1k, large, xlarge
@@ -125,6 +153,8 @@ def get_model(config):
         return ConvNeXt(**config.params)
     elif model_name == "efficientnet":
         return EfficientNet(**config.params)
+    elif model_name == "resnet":
+        return ResNet(**config.params)
     elif model_name == "swin":
         return SwinTransformer(**config.params)
     else:
