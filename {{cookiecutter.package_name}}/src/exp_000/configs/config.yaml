@@ -71,8 +71,8 @@ transforms:
   train_version: v1
   valid_version: v1
   params:
-    height: 384
-    width: 384
+    height: 224
+    width: 224
     p: 0.5
 
 model:
