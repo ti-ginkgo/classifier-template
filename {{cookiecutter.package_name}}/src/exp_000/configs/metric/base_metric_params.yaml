@@ -1,6 +1,7 @@
 AUROC:
   params:
     num_classes: 2
+
 MeanSquaredError:
   params:
     squared: false
