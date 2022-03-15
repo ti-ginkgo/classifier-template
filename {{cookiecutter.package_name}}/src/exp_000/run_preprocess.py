@@ -17,17 +17,17 @@ def preprocess(df, config):
 def split_folds(df, config):
     df["fold"] = -1
 
-    fold_name = config.dataset.fold.name
+    fold_name = config.preprocess.fold.name
     if fold_name == "GroupKFold":
-        gkf = GroupKFold(n_splits=config.dataset.fold.n_splits)
+        gkf = GroupKFold(n_splits=config.preprocess.fold.n_splits)
         split_iter = gkf.split(
             df,
             y=df[config.dataset.target].values,
-            groups=df[config.dataset.fold.group].values,
+            groups=df[config.preprocess.fold.group].values,
         )
     elif fold_name == "StratifiedKFold":
         skf = StratifiedKFold(
-            n_splits=config.dataset.fold.n_splits,
+            n_splits=config.preprocess.fold.n_splits,
             shuffle=True,
             random_state=config.general.seed,
         )
@@ -36,7 +36,7 @@ def split_folds(df, config):
         raise ValueError(f"Not supported fold: {fold_name}.")
 
     for fold, (_, valid_idx) in enumerate(split_iter):
-        df.loc[valid_idx] = fold
+        df.loc[valid_idx, "fold"] = fold
 
     return df
 
@@ -45,7 +45,9 @@ def main(args):
     with initialize(config_path="configs", job_name="config"):
         config = compose(config_name=args.config_name)
 
-    df = pd.read_csv(os.path.join(config.dataset.base_dir, config.dataset.train_df))
+    df = pd.read_csv(
+        os.path.join(config.preprocess.base_dir, config.preprocess.base_csv)
+    )
     df = preprocess(df, config)
     df = split_folds(df, config)
     df.to_csv(config.dataset.train_df, index=False)

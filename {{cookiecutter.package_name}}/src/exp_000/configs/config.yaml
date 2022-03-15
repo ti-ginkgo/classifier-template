@@ -47,12 +47,19 @@ trainer:
   resume_from_checkpoint: None
   stochastic_weight_avg: false
 
-dataset:
+preprocess:
   base_dir: ../../data
+  image_dir: train/image
+  test_image_dir: test/image
+  base_csv: csv/base.csv
+  fold:
+    name: StratifiedKFold
+    n_splits: 5
+    group: # For GroupKFold
+
+dataset:
   train_df: train.csv
-  image_dir: train
-  test_df: sample_submission.csv
-  test_image_dir: test
+  test_df: test.csv
   id: id
   target: label
   fold:
