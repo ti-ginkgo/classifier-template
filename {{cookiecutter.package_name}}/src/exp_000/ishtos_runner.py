@@ -188,16 +188,17 @@ class Validator(Runner):
         return original_images, grayscale_cams, preds, labels
 
     def save_cam(self, original_images, grayscale_cams, preds, labels, fold):
-        fig = plt.figure(figsize=(32, 32))
         batch_size = self.config.dataset.loader.batch_size
+        fig, axes = plt.subplots(
+            batch_size // 4, 4, figsize=(32, 32), sharex=True, sharey=True
+        )
         for i, (image, grayscale_cam, pred, label) in enumerate(
             zip(original_images, grayscale_cams, preds, labels)
         ):
-            plt.subplot(batch_size, 4, i + 1)
             visualization = show_cam_on_image(image, grayscale_cam)
-            plt.imshow(visualization)
-            plt.title(f"pred: {pred:.1f}, label: {label}")
-            plt.axis("off")
+            ax = axes[i // 4, i % 4]
+            ax.set_title(f"pred: {pred:.1f}, label: {label}")
+            ax.imshow(visualization)
         fig.savefig(
             os.path.join(self.config.general.exp_dir, f"cam_{self.ckpt}_{fold}.png")
         )
