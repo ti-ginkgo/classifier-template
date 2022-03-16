@@ -79,14 +79,14 @@ class Runner:
         return dataloader
 
     def oof(self, model, dataloader):
-        inferences = []
+        oofs = []
         with torch.inference_mode():
             for images, _ in tqdm(dataloader):
                 logits = model(images.to("cuda")).squeeze(1)
                 preds = logits.softmax(dim=1).cpu().numpy()
-                inferences.append(preds)
+                oofs.append(preds)
 
-        return np.concatenate(inferences)
+        return np.concatenate(oofs)
 
     def inference(self, model, dataloader):
         inferences = []
@@ -113,7 +113,7 @@ class Validator(Runner):
             dataloader = self.load_dataloader(valid_df, "valid")
             oofs[valid_df.index] = self.oof(model, dataloader)
 
-        self.inferences = oofs
+        self.oofs = oofs
         self.save_oof()
 
     def save_oof(self):
