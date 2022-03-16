@@ -139,6 +139,8 @@ class Validator(Runner):
             return [model.model.layers[-1].blocks[-1].norm1]
         elif model_name == "efficientnet":
             return [model.model.blocks[-1][-1].bn1]
+        elif model_name == "resnet":
+            return [model.model.layer4[-1]]
         elif model_name == "swin":
             return [model.model.layers[-1].blocks[-1].norm1]
         else:
@@ -148,6 +150,8 @@ class Validator(Runner):
         if model_name == "convnext":
             return reshape_transform
         elif model_name == "efficientnet":
+            return None
+        elif model_name == "resnet":
             return None
         elif model_name == "swin":
             return reshape_transform
