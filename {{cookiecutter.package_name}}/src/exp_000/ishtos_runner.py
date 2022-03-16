@@ -60,7 +60,7 @@ class Runner:
     def load_models(self, ckpt):
         self.ckpt = ckpt
         models = []
-        for fold in range(self.config.train.n_splits):
+        for fold in range(self.config.preprocess.fold.n_splits):
             model = self.load_model(fold, ckpt)
             models.append(model)
 
@@ -102,25 +102,13 @@ class Runner:
 
 class Validator(Runner):
     def load_df(self):
-        df = pd.read_csv(
-            os.path.join(self.config.dataset.base_dir, self.config.dataset.train_df)
-        )
-
-        skf = StratifiedKFold(
-            n_splits=self.config.train.n_splits,
-            shuffle=True,
-            random_state=self.config.general.seed,
-        )
-        for n, (_, val_index) in enumerate(
-            skf.split(df, df[self.config.dataset.target].values)
-        ):
-            df.loc[val_index, "fold"] = int(n)
+        df = pd.read_csv(self.config.dataset.train_df)
 
         self.df = df
 
     def run_oof(self):
         oofs = np.zeros((len(self.df), self.config.model.params.num_classes))
-        for fold in range(self.config.train.n_splits):
+        for fold in range(self.config.preprocess.fold.n_splits):
             valid_df = self.df[self.df["fold"] == fold].reset_index(drop=True)
             model = self.models[fold]
             dataloader = self.load_dataloader(valid_df, "valid")
@@ -169,7 +157,7 @@ class Validator(Runner):
 
     def run_cam(self):
         self.config.dataset.gradcam = True
-        for fold in range(self.config.train.n_splits):
+        for fold in range(self.config.preprocess.fold.n_splits):
             valid_df = self.df[self.df["fold"] == fold].reset_index(drop=True)
             model = self.models[fold]
             dataloader = self.load_dataloader(valid_df, "valid", False)
@@ -220,9 +208,7 @@ def reshape_transform(tensor, height=12, width=12):
 
 class Tester(Runner):
     def load_df(self):
-        df = pd.read_csv(
-            os.path.join(self.config.dataset.base_dir, self.config.dataset.test_df)
-        )
+        df = pd.read_csv(self.config.dataset.test_df)
 
         self.df = df
 

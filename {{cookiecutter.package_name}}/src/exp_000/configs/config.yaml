@@ -1,4 +1,5 @@
 defaults:
+  - _self_
   - callback: base_callback_params
   - optimizer: base_optimizer_params
   - scheduler: base_scheduler_params
