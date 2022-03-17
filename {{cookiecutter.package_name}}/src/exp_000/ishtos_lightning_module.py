@@ -33,7 +33,7 @@ class MyLightningModule(LightningModule):
         scheduler_dict = {
             "scheduler": scheduler,
             "interval": self.config.scheduler.interval,
-            "monitor": self.config.shceduler.monitor,
+            "monitor": self.config.scheduler.monitor,
         }
         return {
             "optimizer": optimizer,
