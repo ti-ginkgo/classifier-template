@@ -4,4 +4,4 @@ AUROC:
 
 MeanSquaredError:
   params:
-    squared: false
+    squared: true
