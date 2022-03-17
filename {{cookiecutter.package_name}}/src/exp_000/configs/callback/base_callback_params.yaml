@@ -1,6 +1,5 @@
 lr_monitor:
     enable: true
-    logging_interval: step
 
 early_stopping:
   enable: false
