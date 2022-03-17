@@ -118,7 +118,9 @@ class RMSELoss(nn.Module):
 # --------------------------------------------------
 def get_loss(config):
     loss_name = config.name
-    if loss_name == "CrossEntropyLoss":
+    if loss_name == "BCEWithLogitsLoss":
+        return nn.BCEWithLogitsLoss(**config.BCEWithLogitsLoss.params)
+    elif loss_name == "CrossEntropyLoss":
         return nn.CrossEntropyLoss(**config.CrossEntropyLoss.params)
     elif loss_name == "FocalLoss":
         return FocalLoss(**config.FocalLoss.params)
