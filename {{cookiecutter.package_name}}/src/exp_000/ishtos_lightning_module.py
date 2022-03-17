@@ -30,7 +30,15 @@ class MyLightningModule(LightningModule):
             config=self.config.scheduler,
             len_train_loader=self.len_train_loader,
         )
-        return {"optimizer": optimizer, "scheduler": scheduler, "monitor": "val_loss"}
+        scheduler_dict = {
+            "scheduler": scheduler,
+            "interval": self.config.scheduler.interval,
+            "monitor": self.config.shceduler.monitor,
+        }
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": scheduler_dict,
+        }
 
     def training_step(self, batch, batch_idx):
         loss, preds, target = self.__step(batch, "train")
