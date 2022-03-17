@@ -94,7 +94,9 @@ def get_callbacks(config, fold):
         callbacks.append(model_score_checkpoint)
 
     if config.callback.lr_monitor.enable:
-        lr_monitor = LearningRateMonitor()
+        lr_monitor = LearningRateMonitor(
+            log_momentum=config.callback.lr_monitor.log_momentum
+        )
         callbacks.append(lr_monitor)
 
     return callbacks

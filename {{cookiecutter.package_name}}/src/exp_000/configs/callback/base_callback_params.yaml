@@ -1,5 +1,6 @@
 lr_monitor:
     enable: true
+    log_momentum: false
 
 early_stopping:
   enable: false
