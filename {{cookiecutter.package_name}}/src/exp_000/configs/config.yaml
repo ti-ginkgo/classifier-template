@@ -25,15 +25,15 @@ logger:
     name: csv_logger
     version: fold
 
-wandb_logger:
-  enable: True
-  entity: ishtos
-  save_dir: .
-  name: fold
-  offline: false
-  project: {{ cookiecutter.project }}
-  log_model: all # ['all', true, false]
-  group: exp_000
+  wandb_logger:
+    enable: True
+    entity: ishtos
+    save_dir: .
+    name: fold
+    offline: false
+    project: {{ cookiecutter.project }}
+    log_model: all # ['all', true, false]
+    group: exp_000
 
 trainer:
   accumulate_grad_batches: 1
