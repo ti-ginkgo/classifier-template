@@ -58,8 +58,8 @@ class MyLightningModule(LightningModule):
             logits = self.model(images).squeeze(1)
             loss = self.loss(logits, target)
 
-        preds = logits.softmax(dim=1).detach()
-        target = target.detach()
+        preds = logits.softmax(dim=1).detach().cpu()
+        target = target.detach().cpu()
         return loss, preds, target
 
     def training_epoch_end(self, outputs):
