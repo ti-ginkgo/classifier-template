@@ -2,8 +2,8 @@ import numpy as np
 import torch
 from pytorch_lightning import LightningModule
 
-from ishtos_losses import get_loss
-from ishtos_metrics import get_metric
+from ishtos_losses import get_losses
+from ishtos_metrics import get_metrics
 from ishtos_models import get_model
 from ishtos_optimizers import get_optimizer
 from ishtos_schedulers import get_scheduler
@@ -18,8 +18,8 @@ class MyLightningModule(LightningModule):
         self.fold = fold
         self.len_train_loader = len_train_loader
         self.model = get_model(config.model)
-        self.loss = get_loss(config.loss)
-        self.metric = get_metric(config.metric)
+        self.losses = get_losses(config.loss)
+        self.metrics = get_metrics(config.metric)
 
     def configure_optimizers(self):
         optimizer = get_optimizer(
@@ -53,10 +53,22 @@ class MyLightningModule(LightningModule):
         if do_mixup(phase, self.current_epoch, self.config):
             images, target_a, target_b, lam = mixup_data(images, target)
             logits = self.model(images).squeeze(1)
-            loss = mixup_loss(self.loss, logits, target_a, target_b, lam)
+            for i, loss_weight, loss_func in enumerate(self.losses):
+                if i == 0:
+                    loss = loss_weight * mixup_loss(
+                        loss_func, logits, target_a, target_b, lam
+                    )
+                else:
+                    loss += loss_weight * mixup_loss(
+                        loss_func, logits, target_a, target_b, lam
+                    )
         else:
             logits = self.model(images).squeeze(1)
-            loss = self.loss(logits, target)
+            for i, loss_weight, loss_func in self.losses:
+                if i == 0:
+                    loss = loss_weight * loss_func(logits, target)
+                else:
+                    loss += loss_weight * loss_func(logits, target)
 
         preds = logits.softmax(dim=1).detach().cpu()
         target = target.detach().cpu()
@@ -84,7 +96,10 @@ class MyLightningModule(LightningModule):
         loss = torch.stack(loss).mean().item()
 
         d[f"{phase}_loss"] = loss
-        d[f"{phase}_score"] = self.metric(preds=preds, target=target)
+        for i, (metric_name, metric_func) in enumerate(self.metrics):
+            if i == 0:
+                d[f"{phase}_score"] = metric_func(preds=preds, target=target)
+            d[f"{phase}_{metric_name}"] = metric_func(preds=preds, target=target)
         self.log_dict(d, prog_bar=True, logger=True, on_step=False, on_epoch=True)
 
 

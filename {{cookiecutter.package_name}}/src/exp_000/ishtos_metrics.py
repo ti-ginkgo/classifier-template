@@ -4,19 +4,29 @@ import torchmetrics
 # --------------------------------------------------
 # getter
 # --------------------------------------------------
-def get_metric(config):
-    metric_name = config.name
-    if metric_name == "AUROC":
-        return torchmetrics.AUROC(num_classes=config.AUROC.params.num_classes)
-    elif metric_name == "MeanAbsoluteError":
-        return torchmetrics.MeanAbsoluteError()
-    elif metric_name == "MeanAbsolutePercentageError":
-        return torchmetrics.MeanAbsolutePercentageError()
-    elif metric_name == "MeanSquaredError":
-        return torchmetrics.MeanSquaredError(
-            squared=config.MeanSquaredError.params.squared
-        )
-    elif metric_name == "MeanSquaredLogError":
-        return torchmetrics.MeanSquaredLogError()
-    else:
-        raise ValueError(f"Not supported metric: {metric_name}.")
+def get_metrics(config):
+    metrics = []
+    metric_names = config.names
+    for metric_name in metric_names:
+        if metric_name == "Accuracy":
+            metrics.append(
+                (metric_name, torchmetrics.Accuracy(**config.Accuracy.params))
+            )
+        elif metric_name == "AUROC":
+            metrics.append((metric_name, torchmetrics.AUROC(**config.AUROC.params)))
+        elif metric_name == "MeanAbsoluteError":
+            metrics.append((metric_name, torchmetrics.MeanAbsoluteError()))
+        elif metric_name == "MeanAbsolutePercentageError":
+            metrics.append((metric_name, torchmetrics.MeanAbsolutePercentageError()))
+        elif metric_name == "MeanSquaredError":
+            metrics.append(
+                (
+                    metric_name,
+                    torchmetrics.MeanSquaredError(**config.MeanSquaredError.params),
+                )
+            )
+        elif metric_name == "MeanSquaredLogError":
+            metrics.append((metric_name, torchmetrics.MeanSquaredLogError()))
+        else:
+            raise ValueError(f"Not supported metric: {metric_name}.")
+    return metrics
