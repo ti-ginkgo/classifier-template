@@ -88,8 +88,9 @@ model:
   params:
     base_model: swin_tiny_patch4_window7_224
     pretrained: true
-    my_pretrained:
+    checkpoint_path:
     num_classes: 2
+    neck_version:
     head_version: v1
 
 optimizer:

@@ -1,6 +1,14 @@
 import timm
-import torch
 import torch.nn as nn
+
+
+class NeckV1(nn.Module):
+    def __init__(self, in_features, out_features):
+        super(HeadV1, self).__init__()
+        self.head = nn.Linear(in_features=in_features, out_features=out_features)
+
+    def forward(self, x):
+        return self.head(x)
 
 
 class HeadV1(nn.Module):
@@ -17,28 +25,6 @@ class HeadV1(nn.Module):
 # - resnet18, 26, 34, 50, 101, 152, 200
 # - resnet18d, 26, 34, 50, 101, 152, 200
 # --------------------------------------------------
-class ResNet(nn.Module):
-    def __init__(
-        self,
-        base_model="resnet18",
-        pretrained=True,
-        my_pretrained=None,
-        num_classes=1,
-        head_version="v1",
-    ):
-        super(ResNet, self).__init__()
-        self.model = timm.create_model(base_model, pretrained=pretrained)
-        if my_pretrained:
-            self.model.load_state_dict(torch.load(my_pretrained))
-        in_features = self.model.fc.in_features
-        self.model.fc = get_head(
-            version=head_version, in_features=in_features, out_features=num_classes
-        )
-
-    def forward(self, x):
-        x = self.model(x)
-        return x
-
 
 # --------------------------------------------------
 # ConvNeXt
@@ -47,30 +33,6 @@ class ResNet(nn.Module):
 # - convnext_base_384_in22ft1k, large, xlarge
 # - convnext_base_in22k, large, xlarge
 # --------------------------------------------------
-class ConvNeXt(nn.Module):
-    def __init__(
-        self,
-        base_model="convnext_base_in22k",
-        pretrained=True,
-        my_pretrained=None,
-        num_classes=1,
-        head_version="v1",
-    ):
-        super(ConvNeXt, self).__init__()
-
-        self.model = timm.create_model(base_model, pretrained=pretrained)
-        if my_pretrained:
-            self.model.load_state_dict(torch.load(my_pretrained))
-
-        in_features = self.model.head.fc.in_features
-        self.model.head.fc = get_head(
-            version=head_version, in_features=in_features, out_features=num_classes
-        )
-
-    def forward(self, x):
-        x = self.model(x)
-        return x
-
 
 # --------------------------------------------------
 # EfficientNet
@@ -87,30 +49,6 @@ class ConvNeXt(nn.Module):
 # - tf_efficientnetv2_s_in21k, m, l, xl
 # - tf_efficientnetv2_b0 ~ b3
 # --------------------------------------------------
-class EfficientNet(nn.Module):
-    def __init__(
-        self,
-        base_model="efficientnet_b0",
-        pretrained=True,
-        my_pretrained=None,
-        num_classes=1,
-        head_version="v1",
-    ):
-        super(EfficientNet, self).__init__()
-
-        self.model = timm.create_model(base_model, pretrained=pretrained)
-        if my_pretrained:
-            self.model.load_state_dict(torch.load(my_pretrained))
-
-        in_features = self.model.classifier.in_features
-        self.model.classifier = get_head(
-            version=head_version, in_features=in_features, out_features=num_classes
-        )
-
-    def forward(self, x):
-        x = self.model(x)
-        return x
-
 
 # --------------------------------------------------
 # SwinTransformer
@@ -119,28 +57,38 @@ class EfficientNet(nn.Module):
 # - swin_base_patch4_window12_384_in22k, large
 # - swin_base_patch4_window7_224_in22k, large
 # --------------------------------------------------
-class SwinTransformer(nn.Module):
+class Net(nn.Module):
     def __init__(
         self,
         base_model="swin_tiny_patch4_window7_224",
         pretrained=True,
-        my_pretrained=None,
+        checkpoint_path=None,
         num_classes=1,
+        neck_version="v1",
         head_version="v1",
     ):
-        super(SwinTransformer, self).__init__()
+        super(Net, self).__init__()
 
-        self.model = timm.create_model(base_model, pretrained=pretrained)
-        if my_pretrained:
-            self.model.load_state_dict(torch.load(my_pretrained))
-
-        in_features = self.model.head.in_features
-        self.model.head = get_head(
+        self.backbone = timm.create_model(
+            base_model, pretrained=pretrained, checkpoint_path=checkpoint_path
+        )
+        in_features = self.backbone.get_classifier().in_features
+        self.backbone.reset_classifier(num_classes=0, global_pool="avg")
+        self.neck = get_neck(
+            version=neck_version,
+            in_features=in_features,
+            out_features=in_features,
+        )
+        self.head = get_head(
             version=head_version, in_features=in_features, out_features=num_classes
         )
 
     def forward(self, x):
-        x = self.model(x)
+        x = self.backbone(x)
+        if self.neck:
+            x = self.neck(x)
+        if self.head(x):
+            x = self.head(x)
         return x
 
 
@@ -149,20 +97,25 @@ class SwinTransformer(nn.Module):
 # --------------------------------------------------
 def get_model(config):
     model_name = config.name
-    if model_name == "convnext":
-        return ConvNeXt(**config.params)
-    elif model_name == "efficientnet":
-        return EfficientNet(**config.params)
-    elif model_name == "resnet":
-        return ResNet(**config.params)
-    elif model_name == "swin":
-        return SwinTransformer(**config.params)
+    if model_name == "net":
+        return Net(**config.params)
     else:
         raise ValueError(f"Not supported model: {model_name}")
 
 
+def get_neck(version, in_features, out_features):
+    if version is None:
+        return None
+    elif version == "v1":
+        return NeckV1(in_features=in_features, out_features=out_features)
+    else:
+        raise ValueError(f"Not supported head version: {version}")
+
+
 def get_head(version, in_features, out_features):
-    if version == "v1":
+    if version is None:
+        return None
+    elif version == "v1":
         return HeadV1(in_features=in_features, out_features=out_features)
     else:
         raise ValueError(f"Not supported head version: {version}")
