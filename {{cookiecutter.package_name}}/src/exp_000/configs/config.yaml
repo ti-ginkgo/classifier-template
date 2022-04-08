@@ -86,7 +86,7 @@ transforms:
 model:
   name: swin
   params:
-    base_model: swin_tiny_patch4_window7_224
+    base_model: swin_base_patch4_window7_224
     pretrained: true
     checkpoint_path:
     num_classes: 2
@@ -98,7 +98,7 @@ optimizer:
 
 scheduler:
   name: CosineAnnealingWarmRestarts
-  interval: step # [step, epoch]
+  interval: epoch # [step, epoch]
   monitor: val_loss # [val_loss, val_score]
 
 loss:
