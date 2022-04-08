@@ -63,7 +63,7 @@ class Net(nn.Module):
         base_model="swin_tiny_patch4_window7_224",
         pretrained=True,
         checkpoint_path=None,
-        num_classes=1,
+        num_classes=2,
         neck_version="v1",
         head_version="v1",
     ):
