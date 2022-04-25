@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# MISC
+# data/*
+# !data/csv/
+# src/exp_000/
+# src-*/exp_*/outputs/checkpoints/
+# src-*/exp_*/outputs/wandb/
