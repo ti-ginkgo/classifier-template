@@ -8,7 +8,7 @@ from hydra import compose, initialize
 def preprocess(df, config):
     df["image_path"] = df[config.dataset.id].apply(
         lambda x: os.path.join(
-            config.dataset.base_dir, config.dataset.test_image_dir, x
+            config.preprocess.base_dir, config.preprocess.test_image_dir, x
         )
     )
 

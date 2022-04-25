@@ -8,7 +8,9 @@ from sklearn.model_selection import GroupKFold, StratifiedKFold
 
 def preprocess(df, config):
     df["image_path"] = df[config.dataset.id].apply(
-        lambda x: os.path.join(config.dataset.base_dir, config.dataset.image_dir, x)
+        lambda x: os.path.join(
+            config.preprocess.base_dir, config.preprocess.image_dir, x
+        )
     )
 
     return df
