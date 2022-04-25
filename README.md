@@ -3,7 +3,8 @@
 cookiercutter classifier template based on pytorch lightning
 
 ## Install cookiecutter
-```pip install cookiecutter```
+
+`pip install cookiecutter`
 
 ## Usage
 
