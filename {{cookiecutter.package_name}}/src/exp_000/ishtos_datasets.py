@@ -1,10 +1,9 @@
 import cv2
 import numpy as np
 import torch
+from ishtos_transforms import get_transforms
 from torch.utils.data import Dataset
 from tqdm import tqdm
-
-from ishtos_transforms import get_transforms
 
 
 class MyDataset(Dataset):

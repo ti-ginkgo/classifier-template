@@ -1,5 +1,5 @@
 import math
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import Any, Callable, Optional
 
 import torch
 from torch.optim import SGD, Adam, Optimizer
@@ -100,7 +100,7 @@ class MADGRAD(Optimizer):
         if weight_decay < 0:
             raise ValueError(f"Weight decay {weight_decay} must be non-negative")
         if eps < 0:
-            raise ValueError(f"Eps must be non-negative")
+            raise ValueError("Eps must be non-negative")
 
         defaults = dict(
             lr=lr, eps=eps, momentum=momentum, weight_decay=weight_decay, k=0

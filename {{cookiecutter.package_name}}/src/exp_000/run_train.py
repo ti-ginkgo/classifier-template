@@ -5,6 +5,8 @@ import warnings
 import torch
 import wandb
 from hydra import compose, initialize
+from ishtos_lightning_data_module import MyLightningDataModule
+from ishtos_lightning_module import MyLightningModule
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import (
     EarlyStopping,
@@ -12,9 +14,6 @@ from pytorch_lightning.callbacks import (
     ModelCheckpoint,
 )
 from pytorch_lightning.loggers import CSVLogger, WandbLogger
-
-from ishtos_lightning_data_module import MyLightningDataModule
-from ishtos_lightning_module import MyLightningModule
 
 warnings.filterwarnings("ignore")
 

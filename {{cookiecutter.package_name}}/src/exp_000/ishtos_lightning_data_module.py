@@ -1,10 +1,9 @@
 import os
 
 import pandas as pd
+from ishtos_datasets import get_dataset
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader
-
-from ishtos_datasets import get_dataset
 
 
 class MyLightningDataModule(LightningDataModule):

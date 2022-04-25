@@ -1,12 +1,11 @@
 import numpy as np
 import torch
-from pytorch_lightning import LightningModule
-
 from ishtos_losses import get_losses
 from ishtos_metrics import get_metrics
 from ishtos_models import get_model
 from ishtos_optimizers import get_optimizer
 from ishtos_schedulers import get_scheduler
+from pytorch_lightning import LightningModule
 
 
 class MyLightningModule(LightningModule):

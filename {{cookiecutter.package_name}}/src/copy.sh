@@ -1,3 +1,5 @@
+#!/bin/bash
+
 src=$1
 target=$2
 
