@@ -3,7 +3,6 @@ import os
 
 import pandas as pd
 from hydra import compose, initialize
-from sklearn.model_selection import GroupKFold, StratifiedKFold
 
 
 def preprocess(df, config):
