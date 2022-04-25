@@ -103,4 +103,4 @@ loss:
   weights: [1]
 
 metric:
-  name: ["AUROC"]
+  names: ["AUROC"]
