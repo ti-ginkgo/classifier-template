@@ -5,12 +5,13 @@ matplotlib
 numpy
 opencv-python
 pandas
+pre-commit
 pytorch-lightning
 scikit-learn
 timm
-torch
-torchaudio
-torchvision
+# torch
+# torchaudio
+# torchvision
 tqdm
 transformers
 wandb
