@@ -63,7 +63,7 @@ class MyLightningModule(LightningModule):
                     )
         else:
             logits = self.model(images).squeeze(1)
-            for i, loss_weight, loss_func in enumerate(self.losses):
+            for i, (loss_weight, loss_func) in enumerate(self.losses):
                 if i == 0:
                     loss = loss_weight * loss_func(logits, target)
                 else:
