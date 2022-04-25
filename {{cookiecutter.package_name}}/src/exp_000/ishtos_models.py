@@ -87,7 +87,7 @@ class Net(nn.Module):
         x = self.backbone(x)
         if self.neck:
             x = self.neck(x)
-        if self.head(x):
+        if self.head:
             x = self.head(x)
         return x
 

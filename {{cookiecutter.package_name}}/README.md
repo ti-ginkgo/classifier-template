@@ -3,3 +3,10 @@
 ## Requirement
 
 `pip install -r requirements.txt`
+
+## Run
+
+```bash
+$ cd src/exp_<EXP>
+$ ./run.sh
+```
