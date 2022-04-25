@@ -13,7 +13,7 @@ general:
 
 train:
   mixup:
-    enable: true
+    enable: false
     alpha: 1
     duration: 0
     p: 0.5
@@ -26,7 +26,7 @@ logger:
     version: fold
 
   wandb_logger:
-    enable: True
+    enable: true
     entity: ishtos
     save_dir: .
     name: fold
@@ -52,21 +52,18 @@ preprocess:
   base_dir: ../../data
   image_dir: train/image
   test_image_dir: test/image
-  base_csv: csv/base.csv
+  train_csv: csv/train.csv
+  test_csv: csv/test.csv
   fold:
     name: StratifiedKFold
     n_splits: 5
-    group: # For GroupKFold
+    group: group # For GroupKFold
 
 dataset:
-  train_df: train.csv
-  test_df: test.csv
+  train_csv: train.csv
+  test_csv: test.csv
   id: id
-  target: label
-  fold:
-    name: StratifiedKFold
-    n_splits: 5
-    group: # For GroupKFold
+  target: target
   store_train: true
   store_valid: true
   grayscale: false
@@ -98,7 +95,7 @@ optimizer:
 
 scheduler:
   name: CosineAnnealingWarmRestarts
-  interval: epoch # [step, epoch]
+  interval: step # [step, epoch]
   monitor: val_loss # [val_loss, val_score]
 
 loss:

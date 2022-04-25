@@ -46,11 +46,11 @@ def main(args):
         config = compose(config_name=args.config_name)
 
     df = pd.read_csv(
-        os.path.join(config.preprocess.base_dir, config.preprocess.base_csv)
+        os.path.join(config.preprocess.base_dir, config.preprocess.train_csv)
     )
     df = preprocess(df, config)
     df = split_folds(df, config)
-    df.to_csv(config.dataset.train_df, index=False)
+    df.to_csv(config.dataset.train_csv, index=False)
 
 
 def parse_args():
