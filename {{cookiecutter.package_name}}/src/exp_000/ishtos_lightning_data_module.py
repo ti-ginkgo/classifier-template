@@ -60,3 +60,6 @@ class MyLightningDataModule(LightningDataModule):
 
     def test_dataloader(self):
         return self._get_dataloader(phase="test")
+
+    def predict_dataloader(self):
+        return self._get_dataloader(phase="test")
