@@ -217,11 +217,11 @@ class Tester(Runner):
 
     def run_inference(self):
         inferences = np.zeros((len(self.df), self.config.model.params.num_classes))
-        for fold in range(self.config.train.n_split):
+        for fold in range(self.config.preprocess.fold.n_splits):
             model = self.models[fold]
             dataloader = self.load_dataloader(self.df, "test")
             inferences += self.inference(model, dataloader)
-        inferences = inferences / self.config.train.n_split
+        inferences = inferences / self.config.preprocess.fold.n_splits
 
         self.inferences = inferences
         self.save_inference()
@@ -230,7 +230,6 @@ class Tester(Runner):
         df = self.df.copy()
         df.loc[:, self.config.dataset.target] = self.inferences
         df.to_csv(
-            os.path.join(
-                self.config.general.exp_dir, f"inferences_{self.ckpt}.csv", index=False
-            )
+            os.path.join(self.config.general.exp_dir, f"inferences_{self.ckpt}.csv"),
+            index=False,
         )
