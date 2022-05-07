@@ -12,7 +12,7 @@ cookiercutter template based on pytorch lightning
 ## Usage
 
 ```bash
-cookiecutter classifier-template
+cookiecutter pytorch-lightning-template
 > project [template]: <PROJECT>
 > package_name [classifier-template]: <PACKAGE_NAME>
 ```
