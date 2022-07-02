@@ -1,6 +1,6 @@
 albumentations
 grad-cam
-hydra-core
+omegaconf
 matplotlib
 numpy
 opencv-python
