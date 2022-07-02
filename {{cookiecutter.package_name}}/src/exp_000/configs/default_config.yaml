@@ -144,7 +144,6 @@ optimizer:
       lr: 1e-3
       momentum: 0.9
 
-
 scheduler:
   CosineAnnealingLR:
     params:
@@ -177,7 +176,6 @@ scheduler:
       cooldown: 0
       min_lr: 1e-5
       eps: 1e-8
-
 
 loss:
   BCEWithLogitsLoss:
@@ -222,6 +220,15 @@ metric:
   AUROC:
     params:
       num_classes: ${model.params.num_classes}
+  CohenKappa:
+    params:
+      num_classes: ${model.params.num_classes}
+  MeanAbsoluteError:
+    params:
+  MeanAbsolutePercentageError:
+    params:
   MeanSquaredError:
     params:
       squared: true
+  MeanSquaredLogError:
+    prams:

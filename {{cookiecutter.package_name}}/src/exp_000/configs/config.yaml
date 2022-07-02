@@ -71,4 +71,4 @@ loss:
   weights: [1]
 
 metric:
-  names: ["AUROC"]
+  names: ["AUROC", "CohenKappa"]
