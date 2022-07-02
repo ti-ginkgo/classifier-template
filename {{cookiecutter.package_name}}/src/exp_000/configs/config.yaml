@@ -1,48 +1,20 @@
-defaults:
-  - _self_
-  - callback: base_callback_params
-  - optimizer: base_optimizer_params
-  - scheduler: base_scheduler_params
-  - loss: base_loss_params
-  - metric: base_metric_params
-
 general:
   debug: false
-  seed: 42
-  exp_dir: ./outputs
 
 train:
   mixup:
     enable: false
-    alpha: 1
-    duration: 0
-    p: 0.5
 
 logger:
   csv_logger:
     enable: true
-    save_dir: logs
-    name: csv_logger
-    version: fold
 
   wandb_logger:
     enable: true
-    entity: ishtos
-    save_dir: .
-    name: fold
-    offline: false
-    project: {{ cookiecutter.project }}
-    log_model: all # ['all', true, false]
     group: exp_000
 
 trainer:
   accumulate_grad_batches: 1
-  amp_backend: native
-  benchmark: false
-  deteministic: true
-  gpus: 1
-  gradient_clip_val: 0
-  gradient_clip_algorithm: norm
   precision: 16
   max_epochs: 20 # schduler
   resume_from_checkpoint: None

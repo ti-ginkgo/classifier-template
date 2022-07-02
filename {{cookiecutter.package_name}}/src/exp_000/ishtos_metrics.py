@@ -6,14 +6,16 @@ import torchmetrics
 # --------------------------------------------------
 def get_metrics(config):
     metrics = []
-    metric_names = config.names
+    metric_names = config.metric.names
     for metric_name in metric_names:
         if metric_name == "Accuracy":
             metrics.append(
-                (metric_name, torchmetrics.Accuracy(**config.Accuracy.params))
+                (metric_name, torchmetrics.Accuracy(**config.metric.Accuracy.params))
             )
         elif metric_name == "AUROC":
-            metrics.append((metric_name, torchmetrics.AUROC(**config.AUROC.params)))
+            metrics.append(
+                (metric_name, torchmetrics.AUROC(**config.metric.AUROC.params))
+            )
         elif metric_name == "MeanAbsoluteError":
             metrics.append((metric_name, torchmetrics.MeanAbsoluteError()))
         elif metric_name == "MeanAbsolutePercentageError":
@@ -22,7 +24,9 @@ def get_metrics(config):
             metrics.append(
                 (
                     metric_name,
-                    torchmetrics.MeanSquaredError(**config.MeanSquaredError.params),
+                    torchmetrics.MeanSquaredError(
+                        **config.metric.MeanSquaredError.params
+                    ),
                 )
             )
         elif metric_name == "MeanSquaredLogError":
@@ -30,3 +34,17 @@ def get_metrics(config):
         else:
             raise ValueError(f"Not supported metric: {metric_name}.")
     return metrics
+
+
+if __name__ == "__main__":
+    import torch.nn as nn
+    from omegaconf import OmegaConf
+
+    default_config = OmegaConf.load("./configs/default_config.yaml")
+    config = OmegaConf.load("./configs/config.yaml")
+    config = OmegaConf.merge(default_config, config)
+
+    metrics = get_metrics(config)
+
+    assert all(isinstance(metric[0], str) for metric in metrics)
+    assert all(isinstance(metric[1], nn.Module) for metric in metrics)

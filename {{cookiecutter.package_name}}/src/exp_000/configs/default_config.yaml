@@ -1,0 +1,227 @@
+general:
+  debug: false
+  seed: 42
+  exp_dir: ./outputs
+
+train:
+  mixup:
+    enable: false
+    alpha: 1
+    duration: 0
+    p: 0.5
+
+callback:
+  lr_monitor:
+    enable: true
+    log_momentum: false
+
+  early_stopping:
+    enable: false
+    monitor: val_loss
+    patience: 10
+    verbose: false
+    mode: min
+    strict: true
+    check_finite: true
+    check_on_train_epoch_end: false
+
+  model_loss_checkpoint:
+    enable: true
+    dirpath: checkpoints/loss
+    filename: fold
+    monitor: val_loss
+    verbose: false
+    save_last: false
+    save_top_k: 1
+    mode: min
+    save_weights_only: true
+
+  model_score_checkpoint:
+    enable: true
+    dirpath: checkpoints/score
+    filename: fold
+    monitor: val_score
+    verbose: false
+    save_last: false
+    save_top_k: 1
+    mode: max
+    save_weights_only: true
+
+logger:
+  csv_logger:
+    enable: true
+    save_dir: logs
+    name: csv_logger
+    version: fold
+
+  wandb_logger:
+    enable: true
+    entity: ishtos
+    save_dir: .
+    name: fold
+    offline: false
+    project:
+    log_model: all # ['all', true, false]
+    group: exp_000
+
+trainer:
+  accumulate_grad_batches: 1
+  amp_backend: native
+  benchmark: false
+  deteministic: true
+  gpus: 1
+  gradient_clip_val: 0
+  gradient_clip_algorithm: norm
+  precision: 16
+  max_epochs: 20 # schduler
+  resume_from_checkpoint: None
+  stochastic_weight_avg: false
+
+preprocess:
+  base_dir: ../../data
+  image_dir: train/image
+  test_image_dir: test/image
+  train_csv: csv/train.csv
+  test_csv: csv/test.csv
+  fold:
+    name: StratifiedKFold
+    n_splits: 5
+    group: group # For GroupKFold
+
+dataset:
+  train_csv: train.csv
+  test_csv: test.csv
+  id: id
+  target: target
+  store_train: true
+  store_valid: true
+  grayscale: false
+  gradcam: false
+  loader:
+    batch_size: 32
+    num_workers: 8
+
+transforms:
+  train_version: v1
+  valid_version: v1
+  params:
+    height: 224
+    width: 224
+    p: 0.5
+
+model:
+  name: net
+  params:
+    base_model: swin_base_patch4_window7_224
+    pretrained: true
+    checkpoint_path:
+    num_classes: 2
+    neck_version:
+    head_version: v1
+
+optimizer:
+  Adam:
+    params:
+      lr: 5e-5
+      betas: [0.9, 0.999]
+      eps: 1e-8
+      weight_decay: 0
+  AdamW:
+    params:
+      lr: 1e-5
+      betas: [0.9, 0.999]
+      eps: 1e-8
+      weight_decay: 1e-8
+  MADGRAD:
+    params:
+      lr: 1e-3
+      eps: 1e-8
+  SAM:
+    params:
+      base_optimizer: Adam
+  SGD:
+    params:
+      lr: 1e-3
+      momentum: 0.9
+
+
+scheduler:
+  CosineAnnealingLR:
+    params:
+      T_max: 20
+      eta_min: 1e-5
+      last_epoch: -1
+  CosineAnnealingWarmRestarts:
+    params:
+      T_0: 20
+      T_mult: 1
+      eta_min: 1e-6
+      last_epoch: -1
+  # cosine_schedule_with_warmup:
+  #   params:
+  #     max_epochs: 20
+  #     num_warmup_steps_factor: 10
+  GradualWarmupSchedulerV2:
+    params:
+      total_epoch: 20
+      warmup_epoch: 2
+      warmup_factor: 10
+      eta_min: 1e-5
+  ReduceLROnPlateau:
+    params:
+      mode: min
+      factor: 0.75
+      patience: 10
+      threshold: 1e-4
+      threshold_mode: rel
+      cooldown: 0
+      min_lr: 1e-5
+      eps: 1e-8
+
+
+loss:
+  BCEWithLogitsLoss:
+    params:
+      reduction: mean
+  CrossEntropyLoss:
+    params:
+      reduction: mean
+  FocalLoss:
+    params:
+      alpha: 1
+      gamma: 2
+      reduction: mean
+      eps: 1e-7
+  L1Loss:
+    params:
+      reduction: mean
+  MSELoss:
+    params:
+      reduction: mean
+  NLLLoss:
+    params:
+      reduction: mean
+  OUSMLoss:
+    params:
+      base_loss_name: RMSELoss
+      base_reduction: mean
+      k: 1 # number of drop samples
+      trigger: 10 # epoch to enable OUSM
+  RMSELoss:
+    params:
+      reduction: mean
+  SmoothL1Loss:
+    params:
+      reduction: mean
+
+metric:
+  Accuracy:
+    params:
+      average: micro
+      num_classes: 2
+  AUROC:
+    params:
+      num_classes: 2
+  MeanSquaredError:
+    params:
+      squared: true

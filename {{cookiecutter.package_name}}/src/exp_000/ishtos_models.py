@@ -96,9 +96,9 @@ class Net(nn.Module):
 # getter
 # --------------------------------------------------
 def get_model(config):
-    model_name = config.name
+    model_name = config.model.name
     if model_name == "net":
-        return Net(**config.params)
+        return Net(**config.model.params)
     else:
         raise ValueError(f"Not supported model: {model_name}")
 
@@ -119,3 +119,15 @@ def get_head(version, in_features, out_features):
         return HeadV1(in_features=in_features, out_features=out_features)
     else:
         raise ValueError(f"Not supported head version: {version}")
+
+
+if __name__ == "__main__":
+    from omegaconf import OmegaConf
+
+    default_config = OmegaConf.load("./configs/default_config.yaml")
+    config = OmegaConf.load("./configs/config.yaml")
+    config = OmegaConf.merge(default_config, config)
+
+    model = get_model(config)
+
+    assert isinstance(model, nn.Module)

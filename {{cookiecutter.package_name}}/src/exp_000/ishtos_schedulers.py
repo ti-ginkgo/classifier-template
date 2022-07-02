@@ -3,7 +3,8 @@ from torch.optim.lr_scheduler import (
     CosineAnnealingWarmRestarts,
     ReduceLROnPlateau,
 )
-from transformers.optimization import get_cosine_schedule_with_warmup
+
+# from transformers.optimization import get_cosine_schedule_with_warmup
 from warmup_scheduler import GradualWarmupScheduler
 
 
@@ -42,38 +43,56 @@ class GradualWarmupSchedulerV2(GradualWarmupScheduler):
 # --------------------------------------------------
 # getter
 # --------------------------------------------------
-def get_scheduler(optimizer, config, len_train_loader=0):
-    scheduler_name = config.name
+def get_scheduler(config, optimizer):
+    scheduler_name = config.scheduler.name
     if scheduler_name == "CosineAnnealingLR":
-        return CosineAnnealingLR(optimizer, **config.CosineAnnealingLR.params)
+        return CosineAnnealingLR(optimizer, **config.scheduler.CosineAnnealingLR.params)
     elif scheduler_name == "CosineAnnealingWarmRestarts":
         return CosineAnnealingWarmRestarts(
-            optimizer, **config.CosineAnnealingWarmRestarts.params
+            optimizer, **config.scheduler.CosineAnnealingWarmRestarts.params
         )
     elif scheduler_name == "cosine_schedule_with_warmup":
-        num_training_steps = (
-            config.cosine_schedule_with_warmup.params.max_epochs * len_train_loader
-        )
-        return get_cosine_schedule_with_warmup(
-            optimizer,
-            num_warmup_steps=num_training_steps
-            / config.cosine_schedule_with_warmup.params.num_warmup_steps_factor,
-            num_training_steps=num_training_steps,
-        )
+        # num_training_steps = (
+        #     config.scheduler.cosine_schedule_with_warmup.params.max_epochs * len_train_loader
+        # )
+        # return get_cosine_schedule_with_warmup(
+        #     optimizer,
+        #     num_warmup_steps=num_training_steps
+        #     / config.scheduler.cosine_schedule_with_warmup.params.num_warmup_steps_factor,
+        #     num_training_steps=num_training_steps,
+        # )
+        raise ValueError("Not supported len_train_loader...")
     elif scheduler_name == "GradualWarmupSchedulerV2":
         scheduler_cosine = CosineAnnealingLR(
             optimizer,
-            T_max=config.GradualWarmupSchedulerV2.params.total_epoch
-            - config.GradualWarmupSchedulerV2.params.warmup_epoch,
-            eta_min=config.GradualWarmupSchedulerV2.eta_min,
+            T_max=config.scheduler.GradualWarmupSchedulerV2.params.total_epoch
+            - config.scheduler.GradualWarmupSchedulerV2.params.warmup_epoch,
+            eta_min=config.scheduler.GradualWarmupSchedulerV2.eta_min,
         )
         return GradualWarmupSchedulerV2(
             optimizer,
-            multiplier=config.GradualWarmupSchedulerV2.params.warmup_factor,
-            total_epoch=config.GradualWarmupSchedulerV2.params.total_epoch,
+            multiplier=config.scheduler.GradualWarmupSchedulerV2.params.warmup_factor,
+            total_epoch=config.scheduler.GradualWarmupSchedulerV2.params.total_epoch,
             after_scheduler=scheduler_cosine,
         )
     elif scheduler_name == "ReduceLROnPlateau":
-        return ReduceLROnPlateau(optimizer, **config.ReduceLROnPlateau.params)
+        return ReduceLROnPlateau(optimizer, **config.scheduler.ReduceLROnPlateau.params)
     else:
         raise ValueError(f"Not supported scheduler: {scheduler_name}.")
+
+
+if __name__ == "__main__":
+    from ishtos_models import get_model
+    from ishtos_optimizers import get_optimizer
+    from omegaconf import OmegaConf
+    from torch.optim.lr_scheduler import _LRScheduler
+
+    default_config = OmegaConf.load("./configs/default_config.yaml")
+    config = OmegaConf.load("./configs/config.yaml")
+    config = OmegaConf.merge(default_config, config)
+
+    model = get_model(config)
+    optimizer = get_optimizer(config, model.parameters())
+    scheduler = get_scheduler(config, optimizer)
+
+    assert isinstance(scheduler, _LRScheduler)

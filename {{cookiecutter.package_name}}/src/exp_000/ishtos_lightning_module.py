@@ -16,18 +16,17 @@ class MyLightningModule(LightningModule):
         self.config = config
         self.fold = fold
         self.len_train_loader = len_train_loader
-        self.model = get_model(config.model)
-        self.losses = get_losses(config.loss)
-        self.metrics = get_metrics(config.metric)
+        self.model = get_model(config)
+        self.losses = get_losses(config)
+        self.metrics = get_metrics(config)
 
     def configure_optimizers(self):
         optimizer = get_optimizer(
-            parameters=self.model.parameters(), config=self.config.optimizer
+            config=self.config, parameters=self.model.parameters()
         )
         scheduler = get_scheduler(
+            config=self.config,
             optimizer=optimizer,
-            config=self.config.scheduler,
-            len_train_loader=self.len_train_loader,
         )
         scheduler_dict = {
             "scheduler": scheduler,

@@ -118,31 +118,52 @@ class RMSELoss(nn.Module):
 # --------------------------------------------------
 def get_losses(config):
     losses = []
-    loss_names = config.names
-    loss_weights = config.weights
+    loss_names = config.loss.names
+    loss_weights = config.loss.weights
     for loss_name, loss_weight in zip(loss_names, loss_weights):
         if loss_name == "BCEWithLogitsLoss":
             losses.append(
-                (loss_weight, nn.BCEWithLogitsLoss(**config.BCEWithLogitsLoss.params))
+                (
+                    loss_weight,
+                    nn.BCEWithLogitsLoss(**config.loss.BCEWithLogitsLoss.params),
+                )
             )
         elif loss_name == "CrossEntropyLoss":
             losses.append(
-                (loss_weight, nn.CrossEntropyLoss(**config.CrossEntropyLoss.params))
+                (
+                    loss_weight,
+                    nn.CrossEntropyLoss(**config.loss.CrossEntropyLoss.params),
+                )
             )
         elif loss_name == "FocalLoss":
-            losses.append((loss_weight, FocalLoss(**config.FocalLoss.params)))
+            losses.append((loss_weight, FocalLoss(**config.loss.FocalLoss.params)))
         elif loss_name == "L1Loss":
-            losses.append((loss_weight, nn.L1Loss(**config.L1Loss.params)))
+            losses.append((loss_weight, nn.L1Loss(**config.loss.L1Loss.params)))
         elif loss_name == "MSELoss":
-            losses.append((loss_weight, nn.MSELoss(**config.MSELoss.params)))
+            losses.append((loss_weight, nn.MSELoss(**config.loss.MSELoss.params)))
         elif loss_name == "NLLLoss":
-            losses.append((loss_weight, NLLLoss(**config.NLLLoss.params)))
+            losses.append((loss_weight, NLLLoss(**config.loss.NLLLoss.params)))
         elif loss_name == "OUSMLoss":
-            losses.append((loss_weight, OUSMLoss(**config.OUSMLoss.params)))
+            losses.append((loss_weight, OUSMLoss(**config.loss.OUSMLoss.params)))
         elif loss_name == "RMSELoss":
-            losses.append((loss_weight, RMSELoss(**config.RMSELoss.params)))
+            losses.append((loss_weight, RMSELoss(**config.loss.RMSELoss.params)))
         elif loss_name == "SmoothL1Loss":
-            losses.append((loss_weight, nn.SmoothL1Loss(**config.SmoothL1Loss.params)))
+            losses.append(
+                (loss_weight, nn.SmoothL1Loss(**config.loss.SmoothL1Loss.params))
+            )
         else:
             raise ValueError(f"Not supported loss: {loss_name}.")
     return losses
+
+
+if __name__ == "__main__":
+    from omegaconf import OmegaConf
+
+    default_config = OmegaConf.load("./configs/default_config.yaml")
+    config = OmegaConf.load("./configs/config.yaml")
+    config = OmegaConf.merge(default_config, config)
+
+    losses = get_losses(config)
+
+    assert all(isinstance(loss[0], int) for loss in losses)
+    assert all(isinstance(loss[1], nn.Module) for loss in losses)

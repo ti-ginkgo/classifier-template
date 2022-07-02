@@ -44,3 +44,17 @@ def get_transforms(config, phase):
             raise ValueError(f"Not supported transforms phase: {phase}.")
     except NameError:
         return None
+
+
+if __name__ == "__main__":
+    from omegaconf import OmegaConf
+
+    default_config = OmegaConf.load("./configs/default_config.yaml")
+    config = OmegaConf.load("./configs/config.yaml")
+    config = OmegaConf.merge(default_config, config)
+
+    train_transform = get_transforms(config, "train")
+    valid_transform = get_transforms(config, "valid")
+
+    assert isinstance(train_transform, A.Compose)
+    assert isinstance(valid_transform, A.Compose)

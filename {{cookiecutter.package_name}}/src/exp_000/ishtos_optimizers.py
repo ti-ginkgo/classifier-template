@@ -229,20 +229,34 @@ class MADGRAD(Optimizer):
 # --------------------------------------------------
 # getter
 # --------------------------------------------------
-def get_optimizer(parameters, config):
-    optimizer_name = config.name
+def get_optimizer(config, parameters):
+    optimizer_name = config.optimizer.name
     if optimizer_name == "Adam":
-        return Adam(parameters, **config.Adam.params)
+        return Adam(parameters, **config.optimizer.Adam.params)
     elif optimizer_name == "AdamW":
-        return AdamW(parameters, **config.AdamW.params)
+        return AdamW(parameters, **config.optimizer.AdamW.params)
     elif optimizer_name == "MADGRAD":
-        return MADGRAD(parameters, **config.MADGRAD.params)
+        return MADGRAD(parameters, **config.optimizer.MADGRAD.params)
     elif optimizer_name == "SAM":
-        if config.SAM.base_optimizer == "Adam":
-            return SAM(parameters, Adam, **config.Adam.params)
-        elif config.SAM.base_optimizer == "SGD":
-            return SAM(parameters, SGD, **config.SGD.params)
+        if config.optimizer.SAM.base_optimizer == "Adam":
+            return SAM(parameters, Adam, **config.optimizer.Adam.params)
+        elif config.optimizer.SAM.base_optimizer == "SGD":
+            return SAM(parameters, SGD, **config.optimizer.SGD.params)
     elif optimizer_name == "SGD":
-        return SGD(parameters, **config.SGD.params)
+        return SGD(parameters, **config.optimizer.SGD.params)
     else:
         raise ValueError(f"Not supported optimizer: {optimizer_name}.")
+
+
+if __name__ == "__main__":
+    from ishtos_models import get_model
+    from omegaconf import OmegaConf
+
+    default_config = OmegaConf.load("./configs/default_config.yaml")
+    config = OmegaConf.load("./configs/config.yaml")
+    config = OmegaConf.merge(default_config, config)
+
+    model = get_model(config)
+    optimizer = get_optimizer(config, model.parameters())
+
+    assert isinstance(optimizer, Optimizer)

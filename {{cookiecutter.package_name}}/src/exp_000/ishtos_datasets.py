@@ -66,3 +66,17 @@ class MyDataset(Dataset):
 def get_dataset(config, df, phase, apply_transforms=True):
     transforms = get_transforms(config, phase) if apply_transforms else None
     return MyDataset(config, df, transforms, phase)
+
+
+if __name__ == "__main__":
+    import pandas as pd
+    from omegaconf import OmegaConf
+
+    default_config = OmegaConf.load("./configs/default_config.yaml")
+    config = OmegaConf.load("./configs/config.yaml")
+    config = OmegaConf.merge(default_config, config)
+
+    df = pd.DataFrame(columns=["image_path", config.dataset.target])
+    dataset = get_dataset(config, df, "train", False)
+
+    assert isinstance(dataset, Dataset)
