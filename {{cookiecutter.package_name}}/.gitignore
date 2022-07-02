@@ -129,8 +129,8 @@ dmypy.json
 .pyre/
 
 # MISC
-# data/*
-# !data/csv/
-# src/exp_000/
-# src-*/exp_*/outputs/checkpoints/
-# src-*/exp_*/outputs/wandb/
+data/*
+!data/csv/
+src/exp_000/
+src/exp_*/outputs/checkpoints/
+src/exp_*/outputs/wandb/
