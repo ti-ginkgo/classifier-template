@@ -24,6 +24,10 @@ def get_callbacks(config, fold):
         early_stopping = EarlyStopping(**config.callback.early_stopping.params)
         callbacks.append(early_stopping)
 
+    if config.callback.lr_monitor.enable:
+        lr_monitor = LearningRateMonitor(**config.callback.lr_monitor.params)
+        callbacks.append(lr_monitor)
+
     if config.callback.model_loss_checkpoint.enable:
         config.callback.model_loss_checkpoint.params.filename = (
             f"{config.callback.model_loss_checkpoint.params.filename}-{fold}"
@@ -41,10 +45,6 @@ def get_callbacks(config, fold):
             **config.callback.model_score_checkpoint.params
         )
         callbacks.append(model_score_checkpoint)
-
-    if config.callback.lr_monitor.enable:
-        lr_monitor = LearningRateMonitor(**config.callback.lr_monitor.params)
-        callbacks.append(lr_monitor)
 
     return callbacks
 
