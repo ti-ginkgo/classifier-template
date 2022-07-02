@@ -18,6 +18,37 @@ from utils.loader import load_config
 warnings.filterwarnings("ignore")
 
 
+def get_callbacks(config, fold):
+    callbacks = []
+    if config.callback.early_stopping.enable:
+        early_stopping = EarlyStopping(**config.callback.early_stopping.params)
+        callbacks.append(early_stopping)
+
+    if config.callback.model_loss_checkpoint.enable:
+        config.callback.model_loss_checkpoint.params.filename = (
+            f"{config.callback.model_loss_checkpoint.params.filename}-{fold}"
+        )
+        model_loss_checkpoint = ModelCheckpoint(
+            **config.callback.model_loss_checkpoint.params
+        )
+        callbacks.append(model_loss_checkpoint)
+
+    if config.callback.model_score_checkpoint.enable:
+        config.callback.model_score_checkpoint.params.filename = (
+            f"{config.callback.model_score_checkpoint.params.filename}-{fold}"
+        )
+        model_score_checkpoint = ModelCheckpoint(
+            **config.callback.model_score_checkpoint.params
+        )
+        callbacks.append(model_score_checkpoint)
+
+    if config.callback.lr_monitor.enable:
+        lr_monitor = LearningRateMonitor(**config.callback.lr_monitor.params)
+        callbacks.append(lr_monitor)
+
+    return callbacks
+
+
 def get_loggers(config, fold):
     loggers = []
     if config.logger.csv.enable:
@@ -38,59 +69,6 @@ def get_loggers(config, fold):
         loggers.append(wandb_logger)
 
     return loggers
-
-
-def get_callbacks(config, fold):
-    callbacks = []
-    if config.callback.early_stopping.enable:
-        early_stopping = EarlyStopping(
-            monitor=config.callback.early_stopping.monitor,
-            patience=config.callback.early_stopping.patience,
-            verbose=config.callback.early_stopping.verbose,
-            mode=config.callback.early_stopping.mode,
-            strict=config.callback.early_stopping.strict,
-            check_finite=config.callback.early_stopping.check_finite,
-            check_on_train_epoch_end=config.callback.early_stopping.check_on_train_epoch_end,
-        )
-        callbacks.append(early_stopping)
-
-    if config.callback.model_loss_checkpoint.enable:
-        model_loss_checkpoint = ModelCheckpoint(
-            dirpath=os.path.join(
-                config.general.exp_dir, config.callback.model_loss_checkpoint.dirpath
-            ),
-            filename=f"{config.callback.model_loss_checkpoint.filename}-{fold}",
-            monitor=config.callback.model_loss_checkpoint.monitor,
-            verbose=config.callback.model_loss_checkpoint.verbose,
-            save_last=config.callback.model_loss_checkpoint.save_last,
-            save_top_k=config.callback.model_loss_checkpoint.save_top_k,
-            mode=config.callback.model_loss_checkpoint.mode,
-            save_weights_only=config.callback.model_loss_checkpoint.save_weights_only,
-        )
-        callbacks.append(model_loss_checkpoint)
-
-    if config.callback.model_score_checkpoint.enable:
-        model_score_checkpoint = ModelCheckpoint(
-            dirpath=os.path.join(
-                config.general.exp_dir, config.callback.model_score_checkpoint.dirpath
-            ),
-            filename=f"{config.callback.model_score_checkpoint.filename}-{fold}",
-            monitor=config.callback.model_score_checkpoint.monitor,
-            verbose=config.callback.model_score_checkpoint.verbose,
-            save_last=config.callback.model_score_checkpoint.save_last,
-            save_top_k=config.callback.model_score_checkpoint.save_top_k,
-            mode=config.callback.model_score_checkpoint.mode,
-            save_weights_only=config.callback.model_score_checkpoint.save_weights_only,
-        )
-        callbacks.append(model_score_checkpoint)
-
-    if config.callback.lr_monitor.enable:
-        lr_monitor = LearningRateMonitor(
-            log_momentum=config.callback.lr_monitor.log_momentum
-        )
-        callbacks.append(lr_monitor)
-
-    return callbacks
 
 
 def main(args):
