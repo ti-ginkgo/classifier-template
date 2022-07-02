@@ -12,7 +12,7 @@ from pytorch_lightning.callbacks import (
     LearningRateMonitor,
     ModelCheckpoint,
 )
-from pytorch_lightning.loggers import CSVLogger, WandbLogger
+from pytorch_lightning.loggers import CSVLogger, TensorBoardLogger, WandbLogger
 from utils.loader import load_config
 
 warnings.filterwarnings("ignore")
@@ -20,30 +20,23 @@ warnings.filterwarnings("ignore")
 
 def get_loggers(config, fold):
     loggers = []
-    if config.logger.csv_logger.enable:
-        csv_logger = CSVLogger(
-            save_dir=os.path.join(
-                config.general.exp_dir, config.logger.csv_logger.save_dir
-            ),
-            name=config.logger.csv_logger.name,
-            version=f"{config.logger.csv_logger.version}-{fold}",
+    if config.logger.csv.enable:
+        config.logger.csv.params.version = (
+            f"valid-{config.logger.csv.params.version}-{fold}"
         )
+        csv_logger = CSVLogger(**config.logger.csv.params)
         loggers.append(csv_logger)
 
-    if config.logger.wandb_logger.enable:
-        wandb_logger = WandbLogger(
-            entity=config.logger.wandb_logger.entity,
-            save_dir=os.path.join(
-                config.general.exp_dir, config.logger.wandb_logger.save_dir
-            ),
-            name=f"{config.logger.wandb_logger.name}-{fold}",
-            offline=config.logger.wandb_logger.offline,
-            project=config.logger.wandb_logger.project,
-            log_model=config.logger.wandb_logger.log_model,
-            group=config.logger.wandb_logger.group,
-            config=config,
+    if config.logger.wandb.enable:
+        config.logger.wandb.params.name = (
+            f"valid-{config.logger.wandb.params.name}-{fold}"
         )
+        wandb_logger = WandbLogger(**config.logger.wandb.params, config=config)
         loggers.append(wandb_logger)
+
+    if config.logger.tensorboard.enable:
+        tensorboard_logger = TensorBoardLogger(**config.logger.tensorboard.params)
+        loggers.append(tensorboard_logger)
 
     return loggers
 

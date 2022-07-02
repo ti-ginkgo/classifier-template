@@ -1,7 +1,7 @@
 general:
   debug: false
   seed: 42
-  exp_dir: ./outputs
+  save_dir: ./outputs
 
 train:
   mixup:
@@ -45,21 +45,27 @@ callback:
     save_weights_only: true
 
 logger:
-  csv_logger:
+  csv:
     enable: true
-    save_dir: logs
-    name: csv_logger
-    version: fold
-
-  wandb_logger:
+    params:
+      save_dir: ${general.save_dir}/logs
+      name: csv_logger
+      version: fold
+  wandb:
     enable: true
-    entity: ishtos
-    save_dir: .
-    name: fold
-    offline: false
-    project:
-    log_model: all # ['all', true, false]
-    group: exp_000
+    params:
+      entity: ishtos
+      save_dir: ${general.save_dir}
+      name: fold
+      offline: false
+      project:
+      log_model: all # ['all', true, false]
+      group: exp_000
+  tensorboard:
+    enable: true
+    params:
+      save_dir: ${general.save_dir}/tf_logs
+      name: tensorboard_logger
 
 trainer:
   accumulate_grad_batches: 1
