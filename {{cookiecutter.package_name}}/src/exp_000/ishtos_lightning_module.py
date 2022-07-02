@@ -73,8 +73,9 @@ class MyLightningModule(LightningModule):
         return loss, preds, target
 
     def training_epoch_end(self, outputs):
-        if self.config.loss.name == "OUSMLoss":
-            self.loss.update()
+        if "OUSMLoss" in self.config.loss.names:
+            index = self.config.loss.names.index("OUSMLoss")
+            self.losses[index][1].update()
         self.__epoch_end(outputs, "train")
 
     def validation_epoch_end(self, outputs):
