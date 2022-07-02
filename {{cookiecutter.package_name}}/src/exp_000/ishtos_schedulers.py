@@ -84,12 +84,10 @@ def get_scheduler(config, optimizer):
 if __name__ == "__main__":
     from ishtos_models import get_model
     from ishtos_optimizers import get_optimizer
-    from omegaconf import OmegaConf
     from torch.optim.lr_scheduler import _LRScheduler
+    from utils.loader import load_config
 
-    default_config = OmegaConf.load("./configs/default_config.yaml")
-    config = OmegaConf.load("./configs/config.yaml")
-    config = OmegaConf.merge(default_config, config)
+    config = load_config("config.yaml")
 
     model = get_model(config)
     optimizer = get_optimizer(config, model.parameters())

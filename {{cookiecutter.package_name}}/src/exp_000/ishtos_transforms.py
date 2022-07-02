@@ -47,11 +47,9 @@ def get_transforms(config, phase):
 
 
 if __name__ == "__main__":
-    from omegaconf import OmegaConf
+    from utils.loader import load_config
 
-    default_config = OmegaConf.load("./configs/default_config.yaml")
-    config = OmegaConf.load("./configs/config.yaml")
-    config = OmegaConf.merge(default_config, config)
+    config = load_config("config.yaml")
 
     train_transform = get_transforms(config, "train")
     valid_transform = get_transforms(config, "valid")

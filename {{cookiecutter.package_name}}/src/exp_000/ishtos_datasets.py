@@ -70,12 +70,9 @@ def get_dataset(config, df, phase, apply_transforms=True):
 
 if __name__ == "__main__":
     import pandas as pd
-    from omegaconf import OmegaConf
+    from utils.loader import load_config
 
-    default_config = OmegaConf.load("./configs/default_config.yaml")
-    config = OmegaConf.load("./configs/config.yaml")
-    config = OmegaConf.merge(default_config, config)
-
+    config = load_config("config.yaml")
     df = pd.DataFrame(columns=["image_path", config.dataset.target])
     dataset = get_dataset(config, df, "train", False)
 

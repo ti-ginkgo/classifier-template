@@ -157,11 +157,9 @@ def get_losses(config):
 
 
 if __name__ == "__main__":
-    from omegaconf import OmegaConf
+    from utils.loader import load_config
 
-    default_config = OmegaConf.load("./configs/default_config.yaml")
-    config = OmegaConf.load("./configs/config.yaml")
-    config = OmegaConf.merge(default_config, config)
+    config = load_config("config.yaml")
 
     losses = get_losses(config)
 

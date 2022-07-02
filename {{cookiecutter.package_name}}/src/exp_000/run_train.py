@@ -4,7 +4,6 @@ import warnings
 
 import torch
 import wandb
-from hydra import compose, initialize
 from ishtos_lightning_data_module import MyLightningDataModule
 from ishtos_lightning_module import MyLightningModule
 from pytorch_lightning import Trainer, seed_everything
@@ -14,6 +13,7 @@ from pytorch_lightning.callbacks import (
     ModelCheckpoint,
 )
 from pytorch_lightning.loggers import CSVLogger, WandbLogger
+from utils.loader import load_config
 
 warnings.filterwarnings("ignore")
 
@@ -104,8 +104,7 @@ def get_callbacks(config, fold):
 def main(args):
     fold = args.fold
     torch.autograd.set_detect_anomaly(True)
-    with initialize(config_path="configs", job_name="config"):
-        config = compose(config_name=args.config_name)
+    config = load_config(args.config_name)
 
     os.makedirs(config.general.exp_dir, exist_ok=True)
     seed_everything(config.general.seed)
@@ -151,7 +150,7 @@ def main(args):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config_name", type=str, required=True)
+    parser.add_argument("--config_name", type=str, default="config.yaml")
     parser.add_argument("--fold", type=int, default=0)
     return parser.parse_args()
 

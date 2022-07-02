@@ -38,11 +38,9 @@ def get_metrics(config):
 
 if __name__ == "__main__":
     import torch.nn as nn
-    from omegaconf import OmegaConf
+    from utils.loader import load_config
 
-    default_config = OmegaConf.load("./configs/default_config.yaml")
-    config = OmegaConf.load("./configs/config.yaml")
-    config = OmegaConf.merge(default_config, config)
+    config = load_config("config.yaml")
 
     metrics = get_metrics(config)
 

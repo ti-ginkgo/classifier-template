@@ -122,12 +122,9 @@ def get_head(version, in_features, out_features):
 
 
 if __name__ == "__main__":
-    from omegaconf import OmegaConf
+    from utils.loader import load_config
 
-    default_config = OmegaConf.load("./configs/default_config.yaml")
-    config = OmegaConf.load("./configs/config.yaml")
-    config = OmegaConf.merge(default_config, config)
-
+    config = load_config("config.yaml")
     model = get_model(config)
 
     assert isinstance(model, nn.Module)

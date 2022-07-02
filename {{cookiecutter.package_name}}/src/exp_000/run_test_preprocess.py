@@ -2,7 +2,7 @@ import argparse
 import os
 
 import pandas as pd
-from hydra import compose, initialize
+from utils.loader import load_config
 
 
 def preprocess(df, config):
@@ -16,8 +16,7 @@ def preprocess(df, config):
 
 
 def main(args):
-    with initialize(config_path="configs", job_name="config"):
-        config = compose(config_name=args.config_name)
+    config = load_config(args.config_name)
 
     df = pd.read_csv(
         os.path.join(config.preprocess.base_dir, config.preprocess.test_csv)
@@ -28,7 +27,7 @@ def main(args):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config_name", type=str, required=True)
+    parser.add_argument("--config_name", type=str, default="config.yaml")
     return parser.parse_args()
 
 
