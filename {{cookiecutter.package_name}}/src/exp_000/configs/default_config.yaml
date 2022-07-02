@@ -14,7 +14,6 @@ callback:
   lr_monitor:
     enable: true
     log_momentum: false
-
   early_stopping:
     enable: false
     monitor: val_loss
@@ -24,7 +23,6 @@ callback:
     strict: true
     check_finite: true
     check_on_train_epoch_end: false
-
   model_loss_checkpoint:
     enable: true
     dirpath: checkpoints/loss
@@ -35,7 +33,6 @@ callback:
     save_top_k: 1
     mode: min
     save_weights_only: true
-
   model_score_checkpoint:
     enable: true
     dirpath: checkpoints/score
@@ -79,16 +76,19 @@ trainer:
 
 preprocess:
   base_dir: ../../data
-  image_dir: train/image
-  test_image_dir: test/image
-  train_csv: csv/train.csv
-  test_csv: csv/test.csv
+  image_dir: image
+  test_image_dir: image
+  csv_dir: csv
+  save_dir: localdata
+  train_csv: train.csv
+  test_csv: test.csv
   fold:
     name: StratifiedKFold
     n_splits: 5
     group: group # For GroupKFold
 
 dataset:
+  csv_dir: ${preprocess.save_dir}
   train_csv: train.csv
   test_csv: test.csv
   id: id
@@ -148,22 +148,22 @@ optimizer:
 scheduler:
   CosineAnnealingLR:
     params:
-      T_max: 20
+      T_max: ${trainer.max_epochs}
       eta_min: 1e-5
       last_epoch: -1
   CosineAnnealingWarmRestarts:
     params:
-      T_0: 20
+      T_0: ${trainer.max_epochs}
       T_mult: 1
       eta_min: 1e-6
       last_epoch: -1
   # cosine_schedule_with_warmup:
   #   params:
-  #     max_epochs: 20
+  #     max_epochs: ${trainer.max_epochs}
   #     num_warmup_steps_factor: 10
   GradualWarmupSchedulerV2:
     params:
-      total_epoch: 20
+      total_epoch: ${trainer.max_epochs}
       warmup_epoch: 2
       warmup_factor: 10
       eta_min: 1e-5
@@ -218,10 +218,10 @@ metric:
   Accuracy:
     params:
       average: micro
-      num_classes: 2
+      num_classes: ${model.params.num_classes}
   AUROC:
     params:
-      num_classes: 2
+      num_classes: ${model.params.num_classes}
   MeanSquaredError:
     params:
       squared: true

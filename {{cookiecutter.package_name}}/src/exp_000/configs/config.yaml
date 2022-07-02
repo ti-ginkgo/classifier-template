@@ -5,6 +5,16 @@ train:
   mixup:
     enable: false
 
+callback:
+  lr_monitor:
+    enable: true
+  early_stopping:
+    enable: false
+  model_loss_checkpoint:
+    enable: true
+  model_score_checkpoint:
+    enable: true
+
 logger:
   csv_logger:
     enable: true
@@ -20,22 +30,8 @@ trainer:
   resume_from_checkpoint: None
   stochastic_weight_avg: false
 
-preprocess:
-  base_dir: ../../data
-  image_dir: train/image
-  test_image_dir: test/image
-  train_csv: csv/train.csv
-  test_csv: csv/test.csv
-  fold:
-    name: StratifiedKFold
-    n_splits: 5
-    group: group # For GroupKFold
 
 dataset:
-  train_csv: train.csv
-  test_csv: test.csv
-  id: id
-  target: target
   store_train: true
   store_valid: true
   grayscale: false
