@@ -13,6 +13,5 @@ cookiercutter template based on pytorch lightning
 
 ```bash
 cookiecutter pytorch-lightning-template
-> project [template]: <PROJECT>
 > package_name [classifier-template]: <PACKAGE_NAME>
 ```
