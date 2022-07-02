@@ -51,21 +51,22 @@ logger:
       save_dir: ${general.save_dir}/logs
       name: csv_logger
       version: fold
+  tensorboard:
+    enable: true
+    params:
+      save_dir: ${general.save_dir}/logs
+      name: tensorboard_logger
+      version: fold
   wandb:
     enable: true
     params:
       entity: ishtos
-      save_dir: ${general.save_dir}
+      save_dir: ${general.save_dir}/logs
       name: fold
       offline: false
       project:
       log_model: all # ['all', true, false]
       group: exp_000
-  tensorboard:
-    enable: true
-    params:
-      save_dir: ${general.save_dir}/tf_logs
-      name: tensorboard_logger
 
 trainer:
   accumulate_grad_batches: 1

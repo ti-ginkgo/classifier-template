@@ -16,12 +16,14 @@ callback:
     enable: true
 
 logger:
-  csv_logger:
+  csv:
     enable: true
-
-  wandb_logger:
+  tensorboard:
     enable: true
-    group: exp_000
+  wandb:
+    enable: true
+    params:
+      group: exp_000
 
 trainer:
   accumulate_grad_batches: 1

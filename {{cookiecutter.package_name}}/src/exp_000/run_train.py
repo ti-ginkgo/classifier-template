@@ -21,22 +21,21 @@ warnings.filterwarnings("ignore")
 def get_loggers(config, fold):
     loggers = []
     if config.logger.csv.enable:
-        config.logger.csv.params.version = (
-            f"valid-{config.logger.csv.params.version}-{fold}"
-        )
+        config.logger.csv.params.version = f"{config.logger.csv.params.version}-{fold}"
         csv_logger = CSVLogger(**config.logger.csv.params)
         loggers.append(csv_logger)
 
-    if config.logger.wandb.enable:
-        config.logger.wandb.params.name = (
-            f"valid-{config.logger.wandb.params.name}-{fold}"
-        )
-        wandb_logger = WandbLogger(**config.logger.wandb.params, config=config)
-        loggers.append(wandb_logger)
-
     if config.logger.tensorboard.enable:
+        config.logger.tensorboard.params.version = (
+            f"{config.logger.tensorboard.params.version}-{fold}"
+        )
         tensorboard_logger = TensorBoardLogger(**config.logger.tensorboard.params)
         loggers.append(tensorboard_logger)
+
+    if config.logger.wandb.enable:
+        config.logger.wandb.params.name = f"{config.logger.wandb.params.name}-{fold}"
+        wandb_logger = WandbLogger(**config.logger.wandb.params, config=config)
+        loggers.append(wandb_logger)
 
     return loggers
 
