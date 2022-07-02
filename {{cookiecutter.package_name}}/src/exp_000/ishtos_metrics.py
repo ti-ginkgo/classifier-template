@@ -16,6 +16,13 @@ def get_metrics(config):
             metrics.append(
                 (metric_name, torchmetrics.AUROC(**config.metric.AUROC.params))
             )
+        elif metric_name == "CohenKappa":
+            metrics.append(
+                (
+                    metric_name,
+                    torchmetrics.CohenKappa(**config.metric.CohenKappa.params),
+                )
+            )
         elif metric_name == "MeanAbsoluteError":
             metrics.append((metric_name, torchmetrics.MeanAbsoluteError()))
         elif metric_name == "MeanAbsolutePercentageError":
