@@ -71,51 +71,56 @@ def get_loggers(config, fold):
     return loggers
 
 
+def update_config_for_debug(config):
+    config.trainer.params.fast_dev_run = 1
+    config.trainer.params.limit_train_batches = 0.1
+    config.trainer.params.limit_val_batches = 0.1
+    config.trainer.params.max_epochs = 1
+    config.trainer.params.num_sanity_val_steps = 1
+    config.dataset.store_train = False
+    config.dataset.store_valid = False
+
+    return config
+
+
 def main(args):
     fold = args.fold
     torch.autograd.set_detect_anomaly(True)
     config = load_config(args.config_name)
 
-    os.makedirs(config.general.exp_dir, exist_ok=True)
+    os.makedirs(config.general.save_dir, exist_ok=True)
     seed_everything(config.general.seed)
 
-    loggers = get_loggers(config, fold)
-    callbacks = get_callbacks(config, fold)
+    if not config.trainer.debug:
+        callbacks = get_callbacks(config, fold)
+        loggers = get_loggers(config, fold)
+    else:
+        config = update_config_for_debug(config)
+        callbacks = None
+        loggers = False
 
     trainer = Trainer(
-        accumulate_grad_batches=config.trainer.accumulate_grad_batches,
-        amp_backend=config.trainer.amp_backend,
-        benchmark=config.trainer.benchmark,
+        **config.trainer.params,
         callbacks=callbacks,
-        deterministic=config.trainer.deteministic,
-        fast_dev_run=1 if config.general.debug else False,
-        gpus=config.trainer.gpus,
-        gradient_clip_val=config.trainer.gradient_clip_val,
-        gradient_clip_algorithm=config.trainer.gradient_clip_algorithm,
-        limit_train_batches=0.1 if config.general.debug else 1.0,
-        limit_val_batches=0.1 if config.general.debug else 1.0,
         logger=loggers,
-        max_epochs=1 if config.general.debug else config.trainer.max_epochs,
-        num_sanity_val_steps=1 if config.general.debug else 0,
-        precision=config.trainer.precision,
-        resume_from_checkpoint=eval(config.trainer.resume_from_checkpoint),
-        stochastic_weight_avg=config.trainer.stochastic_weight_avg,
     )
 
     datamodule = MyLightningDataModule(config, fold)
     datamodule.setup(None)
-    len_train_dataloader = datamodule.len_dataloader("train")  # TODO: this is overhead
-    model = MyLightningModule(config, fold, len_train_dataloader)
+    # len_train_dataloader = datamodule.len_dataloader("train")  # TODO: this is overhead
+    model = MyLightningModule(config, fold)
 
-    for logger in loggers:
-        if isinstance(logger, WandbLogger):
-            logger.watch(model)
+    if not config.trainer.debug:
+        for logger in loggers:
+            if isinstance(logger, WandbLogger):
+                logger.watch(model)
 
     trainer.fit(model, datamodule=datamodule)
 
-    for logger in loggers:
-        if isinstance(logger, WandbLogger):
-            wandb.finish()
+    if not config.trainer.debug:
+        for logger in loggers:
+            if isinstance(logger, WandbLogger):
+                wandb.finish()
 
 
 def parse_args():

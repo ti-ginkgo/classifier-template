@@ -1,5 +1,4 @@
 general:
-  debug: false
   seed: 42
   save_dir: ./outputs
 
@@ -73,17 +72,23 @@ logger:
       group: exp_000
 
 trainer:
-  accumulate_grad_batches: 1
-  amp_backend: native
-  benchmark: false
-  deteministic: true
-  gpus: 1
-  gradient_clip_val: 0
-  gradient_clip_algorithm: norm
-  precision: 16
-  max_epochs: 20 # schduler
-  resume_from_checkpoint: None
-  stochastic_weight_avg: false
+  debug: false
+  params:
+    accumulate_grad_batches: 1
+    amp_backend: native
+    benchmark: false
+    deterministic: true
+    fast_dev_run: false
+    gpus: 1
+    gradient_clip_val: 0
+    gradient_clip_algorithm: norm
+    limit_train_batches: 1.0
+    limit_val_batches: 1.0
+    precision: 16
+    max_epochs: 20 # schduler
+    num_sanity_val_steps: 0
+    resume_from_checkpoint:
+    stochastic_weight_avg: false
 
 preprocess:
   base_dir: ../../data
