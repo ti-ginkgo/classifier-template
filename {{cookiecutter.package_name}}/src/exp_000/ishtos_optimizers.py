@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*-
+"""
+@File    :   ishtos_optimizers.py
+@Time    :   2022/07/04 14:13:43
+@Author  :   ishtos
+@Version :   1.0
+@License :   (C)Copyright 2022 ishtos
+"""
+
 import math
 from typing import Any, Callable, Optional
 

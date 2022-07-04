@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*-
+"""
+@File    :   run_train.py
+@Time    :   2022/07/04 14:15:20
+@Author  :   ishtos
+@Version :   1.0
+@License :   (C)Copyright 2022 ishtos
+"""
+
 import argparse
 import os
 import warnings

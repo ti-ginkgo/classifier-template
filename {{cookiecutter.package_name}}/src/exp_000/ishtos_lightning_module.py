@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*-
+"""
+@File    :   ishtos_lightning_module.py
+@Time    :   2022/07/04 14:13:06
+@Author  :   ishtos
+@Version :   1.0
+@License :   (C)Copyright 2022 ishtos
+"""
+
 import numpy as np
 import torch
 from ishtos_losses import get_losses

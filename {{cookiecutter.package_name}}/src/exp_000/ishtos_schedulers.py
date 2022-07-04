@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*-
+"""
+@File    :   ishtos_schedulers.py
+@Time    :   2022/07/04 14:14:03
+@Author  :   ishtos
+@Version :   1.0
+@License :   (C)Copyright 2022 ishtos
+"""
+
 from torch.optim.lr_scheduler import (
     CosineAnnealingLR,
     CosineAnnealingWarmRestarts,

@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*-
+"""
+@File    :   ishtos_losses.py
+@Time    :   2022/07/04 14:13:15
+@Author  :   ishtos
+@Version :   1.0
+@License :   (C)Copyright 2022 ishtos
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

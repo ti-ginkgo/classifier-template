@@ -1,12 +1,22 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*-
+"""
+@File    :   ishtos_runner.py
+@Time    :   2022/07/04 14:13:55
+@Author  :   ishtos
+@Version :   1.0
+@License :   (C)Copyright 2022 ishtos
+"""
+
+
 import os
 from abc import abstractmethod
 from collections import OrderedDict
+from functools import partial
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import torch
-from hydra import compose, initialize
 from ishtos_datasets import get_dataset
 from ishtos_models import get_model
 from ishtos_transforms import get_transforms
@@ -17,40 +27,24 @@ from tqdm import tqdm
 
 
 class Runner:
-    def __init__(self, config_name="config.yaml", ckpt="loss", batch_size=32):
-        self.config = None
-        self.df = None
-
-        self.init(config_name, ckpt, batch_size)
-
-    def init(self, config_name, ckpt, batch_size):
-        self.load_config(config_name, batch_size)
-        self.load_df()
-        self.load_models(ckpt)
-
-    def load_config(self, config_name, batch_size):
-        with initialize(config_path="configs", job_name="config"):
-            config = compose(config_name=config_name)
-        config.dataset.loader.batch_size = batch_size
-        config.dataset.store_valid = False
-
+    def __init__(self, config, df, ckpt="loss"):
         self.config = config
+        self.df = df
+        self.models = self.load_models(ckpt)
 
-    @abstractmethod
-    def load_df(self):
-        pass
+        self.device = torch.device("gpu" if torch.cuda.is_available() else "cpu")
 
     def load_model(self, fold, ckpt):
-        model = get_model(self.config.model)
+        model = get_model(self.config)
         state_dict = OrderedDict()
         ckpt_path = os.path.join(
-            self.config.general.exp_dir, "checkpoints", ckpt, f"fold-{fold}.ckpt"
+            self.config.general.save_dir, "checkpoints", ckpt, f"fold-{fold}.ckpt"
         )
         for k, v in torch.load(ckpt_path)["state_dict"].items():
             name = k.replace("model.", "", 1)
             state_dict[name] = v
         model.load_state_dict(state_dict)
-        model.to("cuda")
+        model.to(self.device)
         model.eval()
 
         return model
@@ -62,7 +56,7 @@ class Runner:
             model = self.load_model(fold, ckpt)
             models.append(model)
 
-        self.models = models
+        return models
 
     def load_dataloader(self, df, phase, apply_transforms=True):
         dataset = get_dataset(self.config, df, phase, apply_transforms)
@@ -77,52 +71,40 @@ class Runner:
 
         return dataloader
 
-    def oof(self, model, dataloader):
-        oofs = []
+    @abstractmethod
+    def run(self):
+        pass
+
+    def predict(self, model, dataloader):
+        outputs = []
         with torch.inference_mode():
             for images, _ in tqdm(dataloader):
-                logits = model(images.to("cuda")).squeeze(1)
-                preds = logits.softmax(dim=1).cpu().numpy()
-                oofs.append(preds)
+                logits = model(images.to(self.device)).squeeze(1)
+                preds = logits.softmax(dim=1).detach().cpu().numpy()
+                outputs.append(preds)
 
-        return np.concatenate(oofs)
+        return np.concatenate(outputs)
 
-    def inference(self, model, dataloader):
-        inferences = []
-        with torch.inference_mode():
-            for images in tqdm(dataloader):
-                logits = model(images.to("cuda")).squeeze(1)
-                preds = logits.softmax(dim=1).cpu().numpy()
-                inferences.append(preds)
-
-        return np.concatenate(inferences)
+    def save(self, outputs, fname):
+        df = self.df.copy()
+        for i in range(self.config.model.params.num_classes):
+            df[f"class_{i}"] = outputs[:, i]
+        df.to_csv(
+            os.path.join(self.config.general.save_dir, fname),
+            index=False,
+        )
 
 
 class Validator(Runner):
-    def load_df(self):
-        df = pd.read_csv(self.config.dataset.train_csv)
-
-        self.df = df
-
-    def run_oof(self):
+    def run(self):
         oofs = np.zeros((len(self.df), self.config.model.params.num_classes))
         for fold in range(self.config.preprocess.fold.n_splits):
             valid_df = self.df[self.df["fold"] == fold].reset_index(drop=True)
             model = self.models[fold]
             dataloader = self.load_dataloader(valid_df, "valid")
-            oofs[valid_df.index] = self.oof(model, dataloader)
+            oofs[valid_df.index] = self.predict(model, dataloader)
 
-        self.oofs = oofs
-        self.save_oof()
-
-    def save_oof(self):
-        df = self.df.copy()
-        for i in range(self.config.model.params.num_classes):
-            df[f"oof_{i}"] = self.oofs[:, i]
-        df.to_csv(
-            os.path.join(self.config.general.exp_dir, f"oof_{self.ckpt}.csv"),
-            index=False,
-        )
+        self.save(oofs, f"oof_{self.ckpt}.csv")
 
     def load_cam(self, model, target_layers, reshape_transform=None):
         cam = GradCAMPlusPlus(
@@ -147,13 +129,21 @@ class Validator(Runner):
 
     def get_reshape_transform(self, model_name):
         if model_name == "convnext":
-            return reshape_transform
+            if "224" in self.config.model.params.base_model:
+                fn = partial(reshape_transform, height=7, width=7)
+            elif "384" in self.config.model.params.base_model:
+                fn = partial(reshape_transform, height=12, width=12)
+            return fn
         elif model_name == "efficientnet":
             return None
         elif model_name == "resnet":
             return None
         elif model_name == "swin":
-            return reshape_transform
+            if "224" in self.config.model.params.base_model:
+                fn = partial(reshape_transform, height=7, width=7)
+            elif "384" in self.config.model.params.base_model:
+                fn = partial(reshape_transform, height=12, width=12)
+            return fn
         else:
             raise ValueError(f"Not supported model: {model_name}.")
 
@@ -179,7 +169,7 @@ class Validator(Runner):
         images = torch.stack(
             [transforms(image=image.numpy())["image"] for image in original_images]
         )
-        logits = model(images.to("cuda")).squeeze(1)
+        logits = model(images.to(self.device)).squeeze(1)
         preds = torch.argmax(logits, dim=1).detach().cpu().numpy()
         labels = targets.detach().cpu().numpy()
         grayscale_cams = cam(input_tensor=images, targets=None, eigen_smooth=True)
@@ -199,37 +189,23 @@ class Validator(Runner):
             ax.set_title(f"pred: {pred:.1f}, label: {label}")
             ax.imshow(visualization)
         fig.savefig(
-            os.path.join(self.config.general.exp_dir, f"cam_{self.ckpt}_{fold}.png")
+            os.path.join(self.config.general.save_dir, f"cam_{self.ckpt}_{fold}.png")
         )
 
 
-def reshape_transform(tensor, height=12, width=12):
+def reshape_transform(tensor, height, width):
     result = tensor.reshape(tensor.size(0), height, width, tensor.size(2))
     result = result.permute(0, 3, 1, 2)
     return result
 
 
 class Tester(Runner):
-    def load_df(self):
-        df = pd.read_csv(self.config.dataset.test_csv)
-
-        self.df = df
-
-    def run_inference(self):
+    def run(self):
         inferences = np.zeros((len(self.df), self.config.model.params.num_classes))
         for fold in range(self.config.preprocess.fold.n_splits):
             model = self.models[fold]
             dataloader = self.load_dataloader(self.df, "test")
-            inferences += self.inference(model, dataloader)
+            inferences += self.predict(model, dataloader)
         inferences = inferences / self.config.preprocess.fold.n_splits
 
-        self.inferences = inferences
-        self.save_inference()
-
-    def save_inference(self):
-        df = self.df.copy()
-        df.loc[:, self.config.dataset.target] = self.inferences
-        df.to_csv(
-            os.path.join(self.config.general.exp_dir, f"inferences_{self.ckpt}.csv"),
-            index=False,
-        )
+        self.save(inferences, f"inference_{self.ckpt}.csv")
