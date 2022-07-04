@@ -130,7 +130,7 @@ dmypy.json
 
 # MISC
 data/*
+ipynb/*
 !data/csv/
 src/exp_000/
-src/exp_*/outputs/checkpoints/
-src/exp_*/outputs/wandb/
+src/exp_*/outputs/
