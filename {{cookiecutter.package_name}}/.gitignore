@@ -132,5 +132,4 @@ dmypy.json
 data/*
 ipynb/*
 !data/csv/
-src/exp_000/
 src/exp_*/outputs/
