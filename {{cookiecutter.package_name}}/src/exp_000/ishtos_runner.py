@@ -37,7 +37,7 @@ class Runner:
         model = get_model(self.config)
         state_dict = OrderedDict()
         ckpt_path = os.path.join(
-            self.config.general.save_dir, "checkpoints", ckpt, f"fold-{fold}.ckpt"
+            self.config.enviroment.save_dir, "checkpoints", ckpt, f"fold-{fold}.ckpt"
         )
         for k, v in torch.load(ckpt_path)["state_dict"].items():
             name = k.replace("model.", "", 1)
@@ -74,10 +74,14 @@ class Runner:
     def run(self):
         pass
 
-    def predict(self, model, dataloader):
+    def predict(self, model, dataloader, stage):
         outputs = []
         with torch.inference_mode():
-            for images, _ in tqdm(dataloader):
+            for data in tqdm(dataloader):
+                if stage == "valid":
+                    images, _ = data
+                elif stage == "test":
+                    images = data
                 logits = model(images.to(self.device)).squeeze(1)
                 preds = logits.softmax(dim=1).detach().cpu().numpy()
                 outputs.append(preds)
@@ -89,7 +93,7 @@ class Runner:
         for i in range(self.config.model.params.num_classes):
             df[f"class_{i}"] = outputs[:, i]
         df.to_csv(
-            os.path.join(self.config.general.save_dir, fname),
+            os.path.join(self.config.enviroment.save_dir, fname),
             index=False,
         )
 
@@ -101,7 +105,7 @@ class Validator(Runner):
             valid_df = self.df[self.df["fold"] == fold].reset_index(drop=True)
             model = self.models[fold]
             dataloader = self.load_dataloader(valid_df, "valid")
-            oofs[valid_df.index] = self.predict(model, dataloader)
+            oofs[valid_df.index] = self.predict(model, dataloader, "valid")
 
         self.save(oofs, f"oof_{self.ckpt}.csv")
 
@@ -188,7 +192,7 @@ class Validator(Runner):
             ax.set_title(f"pred: {pred:.1f}, label: {label}")
             ax.imshow(visualization)
         fig.savefig(
-            os.path.join(self.config.general.save_dir, f"cam_{self.ckpt}_{fold}.png")
+            os.path.join(self.config.enviroment.save_dir, f"cam_{self.ckpt}_{fold}.png")
         )
 
 
@@ -204,7 +208,7 @@ class Tester(Runner):
         for fold in range(self.config.preprocess.fold.n_splits):
             model = self.models[fold]
             dataloader = self.load_dataloader(self.df, "test")
-            inferences += self.predict(model, dataloader)
+            inferences += self.predict(model, dataloader, "test")
         inferences = inferences / self.config.preprocess.fold.n_splits
 
         self.save(inferences, f"inference_{self.ckpt}.csv")

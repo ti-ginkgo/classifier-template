@@ -1,4 +1,4 @@
-general:
+enviroment:
   seed: 42
   save_dir: ./outputs
 
@@ -27,7 +27,7 @@ callback:
   model_loss_checkpoint:
     enable: true
     params:
-      dirpath: ${general.save_dir}/checkpoints/loss
+      dirpath: ${enviroment.save_dir}/checkpoints/loss
       filename: fold
       monitor: val_loss
       verbose: false
@@ -38,7 +38,7 @@ callback:
   model_score_checkpoint:
     enable: true
     params:
-      dirpath: ${general.save_dir}/checkpoints/score
+      dirpath: ${enviroment.save_dir}/checkpoints/score
       filename: fold
       monitor: val_score
       verbose: false
@@ -51,20 +51,20 @@ logger:
   csv:
     enable: true
     params:
-      save_dir: ${general.save_dir}/logs
+      save_dir: ${enviroment.save_dir}/logs
       name: csv_logger
       version: fold
   tensorboard:
     enable: true
     params:
-      save_dir: ${general.save_dir}/logs
+      save_dir: ${enviroment.save_dir}/logs
       name: tensorboard_logger
       version: fold
   wandb:
     enable: true
     params:
       entity: ishtos
-      save_dir: ${general.save_dir}
+      save_dir: ${enviroment.save_dir}
       name: fold
       offline: false
       project:
