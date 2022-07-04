@@ -28,11 +28,10 @@ from tqdm import tqdm
 
 class Runner:
     def __init__(self, config, df, ckpt="loss"):
+        self.device = torch.device("gpu" if torch.cuda.is_available() else "cpu")
         self.config = config
         self.df = df
         self.models = self.load_models(ckpt)
-
-        self.device = torch.device("gpu" if torch.cuda.is_available() else "cpu")
 
     def load_model(self, fold, ckpt):
         model = get_model(self.config)
