@@ -98,8 +98,8 @@ def main(args):
     torch.autograd.set_detect_anomaly(True)
     config = load_config(args.config_name)
 
-    os.makedirs(config.general.save_dir, exist_ok=True)
-    seed_everything(config.general.seed)
+    os.makedirs(config.environment.save_dir, exist_ok=True)
+    seed_everything(config.environment.seed)
 
     if not config.trainer.debug:
         callbacks = get_callbacks(config, fold)

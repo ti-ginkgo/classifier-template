@@ -37,7 +37,7 @@ class Runner:
         model = get_model(self.config)
         state_dict = OrderedDict()
         ckpt_path = os.path.join(
-            self.config.enviroment.save_dir, "checkpoints", ckpt, f"fold-{fold}.ckpt"
+            self.config.environment.save_dir, "checkpoints", ckpt, f"fold-{fold}.ckpt"
         )
         for k, v in torch.load(ckpt_path)["state_dict"].items():
             name = k.replace("model.", "", 1)
@@ -93,7 +93,7 @@ class Runner:
         for i in range(self.config.model.params.num_classes):
             df[f"class_{i}"] = outputs[:, i]
         df.to_csv(
-            os.path.join(self.config.enviroment.save_dir, fname),
+            os.path.join(self.config.environment.save_dir, fname),
             index=False,
         )
 
@@ -192,7 +192,9 @@ class Validator(Runner):
             ax.set_title(f"pred: {pred:.1f}, label: {label}")
             ax.imshow(visualization)
         fig.savefig(
-            os.path.join(self.config.enviroment.save_dir, f"cam_{self.ckpt}_{fold}.png")
+            os.path.join(
+                self.config.environment.save_dir, f"cam_{self.ckpt}_{fold}.png"
+            )
         )
 
 

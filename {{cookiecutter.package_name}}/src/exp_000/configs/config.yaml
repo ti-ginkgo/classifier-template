@@ -1,4 +1,4 @@
-enviroment:
+environment:
   debug: false
 
 train:

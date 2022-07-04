@@ -42,7 +42,7 @@ def split_folds(df, config):
         skf = StratifiedKFold(
             n_splits=config.preprocess.fold.n_splits,
             shuffle=True,
-            random_state=config.general.seed,
+            random_state=config.environment.seed,
         )
         split_iter = skf.split(df, y=df[config.dataset.target].values)
     else:
