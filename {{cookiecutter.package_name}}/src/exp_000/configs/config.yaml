@@ -65,7 +65,7 @@ optimizer:
 
 scheduler:
   name: CosineAnnealingWarmRestarts
-  interval: step # [step, epoch]
+  interval: epoch # [step, epoch]
   monitor: val_loss # [val_loss, val_score]
 
 loss:
