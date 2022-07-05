@@ -39,21 +39,18 @@ def get_valid_transforms_v1(config, pretrained):
 # getter
 # --------------------------------------------------
 def get_transforms(config, phase):
-    try:
-        if phase == "train":
-            return eval(f"get_train_transforms_{config.transforms.train_version}")(
-                config.transforms.params,
-                config.model.params.pretrained,
-            )
-        elif phase in ["valid", "test"]:
-            return eval(f"get_valid_transforms_{config.transforms.valid_version}")(
-                config.transforms.params,
-                config.model.params.pretrained,
-            )
-        else:
-            raise ValueError(f"Not supported transforms phase: {phase}.")
-    except NameError:
-        return None
+    if phase == "train":
+        return eval(f"get_train_transforms_{config.transforms.train_version}")(
+            config.transforms.params,
+            config.model.params.pretrained,
+        )
+    elif phase in ["valid", "test"]:
+        return eval(f"get_valid_transforms_{config.transforms.valid_version}")(
+            config.transforms.params,
+            config.model.params.pretrained,
+        )
+    else:
+        raise ValueError(f"Not supported transforms phase: {phase}.")
 
 
 if __name__ == "__main__":
