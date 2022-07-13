@@ -12,6 +12,13 @@
 from omegaconf import OmegaConf
 
 
+def resolve_tuple(*args):
+    return tuple(args)
+
+
+OmegaConf.register_new_resolver("as_tuple", resolver=resolve_tuple)
+
+
 def load_config(config_name):
     default_config = OmegaConf.load("./configs/default_config.yaml")
     config = OmegaConf.load(f"./configs/{config_name}")

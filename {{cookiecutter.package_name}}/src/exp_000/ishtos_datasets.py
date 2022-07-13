@@ -8,11 +8,15 @@
 @License :   (C)Copyright 2022 ishtos
 """
 
+import os
+
 import cv2
 import numpy as np
 import torch
+import torchvision.transforms.functional as TF
 from ishtos_transforms import get_transforms
 from torch.utils.data import Dataset
+from torchvision.io import ImageReadMode, read_image
 from tqdm import tqdm
 
 
@@ -41,7 +45,10 @@ class MyDataset(Dataset):
             image = self.load_image(self.image_paths[index], self.config)
 
         if self.transforms:
-            image = self.transforms(image=image)["image"]
+            if self.config.dataset.cv2_or_pil == "cv2":
+                image = self.transforms(image=image)["image"]
+            elif self.config.dataset.cv2_or_pil == "pil":
+                image = self.transforms(image)
 
         if self.phase in ["train", "valid"]:
             return image, torch.tensor(self.targets[index], dtype=torch.long)
@@ -52,6 +59,14 @@ class MyDataset(Dataset):
         return self.len
 
     def load_image(self, image_path, config):
+        assert os.path.isfile(image_path), f"{image_path} doesn't exist."
+        if config.dataset.cv2_or_pil == "cv2":
+            image = self.load_image_cv2(image_path, config)
+        elif config.dataset.cv2_or_pil == "pil":
+            image = self.load_image_pil(image_path, config)
+        return image
+
+    def load_image_cv2(self, image_path, config):
         image = cv2.imread(image_path)
         if config.dataset.grayscale:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -64,8 +79,23 @@ class MyDataset(Dataset):
         if config.dataset.gradcam:
             image = cv2.resize(
                 image,
-                (config.transforms.params.height, config.transforms.params.width),
+                (
+                    config.transforms.albumentations.Resize.params.height,
+                    config.transforms.albumentations.Resize.params.width,
+                ),
             )
+
+        return image
+
+    def load_image_pil(self, image_path, config):
+        if config.dataset.grayscale:
+            image = read_image(image_path, ImageReadMode.GRAY)
+            image = image[:, :, np.newaxis]
+            image = np.repeat(image, 3, 2)
+        else:
+            image = read_image(image_path, ImageReadMode.RGB)
+
+        image = TF.resize(image, **config.transforms.torchvision.resize.params)
 
         return image
 

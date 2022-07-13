@@ -36,6 +36,7 @@ trainer:
 dataset:
   store_train: true
   store_valid: true
+  cv2_or_pil: cv2
   grayscale: false
   gradcam: false
   loader:
@@ -43,12 +44,9 @@ dataset:
     num_workers: 8
 
 transforms:
-  train_version: v1
-  valid_version: v1
-  params:
-    height: 224
-    width: 224
-    p: 0.5
+  train_version: Av1
+  valid_version: Av1
+
 
 model:
   name: net
