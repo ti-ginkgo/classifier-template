@@ -11,10 +11,9 @@
 import os
 
 import pandas as pd
+from ishtos_datasets import get_dataset
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader
-
-from ishtos_datasets import get_dataset
 
 
 class MyLightningDataModule(LightningDataModule):
@@ -24,7 +23,9 @@ class MyLightningDataModule(LightningDataModule):
         self.fold = fold
 
     def _split_train_and_valid_df(self):
-        df = pd.read_csv(os.path.join(self.config.dataset.csv_dir, self.config.dataset.train_csv))
+        df = pd.read_csv(
+            os.path.join(self.config.dataset.csv_dir, self.config.dataset.train_csv)
+        )
 
         train_df = df[df["fold"] != self.fold].reset_index(drop=True)
         valid_df = df[df["fold"] == self.fold].reset_index(drop=True)
