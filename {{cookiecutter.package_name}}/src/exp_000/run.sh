@@ -19,19 +19,19 @@ do
 done
 echo "<-- END TRAIN"
 
-echo "START VALID --->"
-python run_valid.py --ckpt loss --cam
-python run_valid.py --ckpt score --cam
-echo "<--- END VALID"
+echo "START OOF --->"
+python run_oof.py --ckpt loss --cam
+python run_oof.py --ckpt score --cam
+echo "<--- END OOF"
 
-echo "START TEST PREPROCESS --->"
-python run_test_preprocess.py --config_name config.yaml
-echo "<--- END TEST PREPROCESS"
+echo "START INFERENCE PREPROCESS --->"
+python run_inference_preprocess.py --config_name config.yaml
+echo "<--- END INFERENCE PREPROCESS"
 
-echo "START TEST"
-python run_test.py --ckpt loss
-python run_test.py --ckpt score
-echo "<--- END TEST"
+echo "START INFERENCE"
+python run_inference.py --ckpt loss
+python run_inference.py --ckpt score
+echo "<--- END INFERENCE"
 
 exp_dir=`cat config.yaml | grep -E -o "exp_[0-9]+"`
 git add -A .
