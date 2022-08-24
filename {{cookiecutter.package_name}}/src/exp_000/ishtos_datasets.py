@@ -14,11 +14,10 @@ import cv2
 import numpy as np
 import torch
 import torchvision.transforms.functional as TF
+from ishtos_transforms import get_transforms
 from torch.utils.data import Dataset
 from torchvision.io import ImageReadMode, read_image
 from tqdm import tqdm
-
-from ishtos_transforms import get_transforms
 
 
 class MyDataset(Dataset):
@@ -35,7 +34,8 @@ class MyDataset(Dataset):
 
         if self.store_train or self.store_valid:
             self.images = [
-                self.load_image(image_path, config) for image_path in tqdm(self.image_paths)
+                self.load_image(image_path, config)
+                for image_path in tqdm(self.image_paths)
             ]
 
     def __getitem__(self, index):
@@ -110,7 +110,6 @@ def get_dataset(config, df, phase, apply_transforms=True):
 
 if __name__ == "__main__":
     import pandas as pd
-
     from utils.loader import load_config
 
     config = load_config("config.yml")

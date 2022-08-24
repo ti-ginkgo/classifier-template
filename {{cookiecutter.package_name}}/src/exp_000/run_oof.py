@@ -12,7 +12,6 @@ import argparse
 import warnings
 
 import pandas as pd
-
 from ishtos_runner import Validator
 from utils.loader import load_config
 

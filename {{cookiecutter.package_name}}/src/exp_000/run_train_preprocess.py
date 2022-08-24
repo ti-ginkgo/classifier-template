@@ -14,13 +14,14 @@ import os
 
 import pandas as pd
 from sklearn.model_selection import GroupKFold, StratifiedKFold
-
 from utils.loader import load_config
 
 
 def preprocess(df, config):
     df["image_path"] = df[config.dataset.id].apply(
-        lambda x: os.path.join(config.preprocess.base_dir, config.preprocess.image_dir, x)
+        lambda x: os.path.join(
+            config.preprocess.base_dir, config.preprocess.image_dir, x
+        )
     )
 
     return df
@@ -56,7 +57,9 @@ def split_folds(df, config):
 def main(args):
     config = load_config(args.config_name)
 
-    df = pd.read_csv(os.path.join(config.preprocess.base_dir, config.preprocess.train_csv))
+    df = pd.read_csv(
+        os.path.join(config.preprocess.base_dir, config.preprocess.train_csv)
+    )
     df = preprocess(df, config)
     df = split_folds(df, config)
     df.to_csv(config.dataset.train_csv, index=False)

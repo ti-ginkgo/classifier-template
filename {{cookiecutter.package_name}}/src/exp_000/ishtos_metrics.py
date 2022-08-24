@@ -19,9 +19,13 @@ def get_metrics(config):
     metric_names = config.metric.names
     for metric_name in metric_names:
         if metric_name == "Accuracy":
-            metrics.append((metric_name, torchmetrics.Accuracy(**config.metric.Accuracy.params)))
+            metrics.append(
+                (metric_name, torchmetrics.Accuracy(**config.metric.Accuracy.params))
+            )
         elif metric_name == "AUROC":
-            metrics.append((metric_name, torchmetrics.AUROC(**config.metric.AUROC.params)))
+            metrics.append(
+                (metric_name, torchmetrics.AUROC(**config.metric.AUROC.params))
+            )
         elif metric_name == "CohenKappa":
             metrics.append(
                 (
@@ -37,7 +41,9 @@ def get_metrics(config):
             metrics.append(
                 (
                     metric_name,
-                    torchmetrics.MeanSquaredError(**config.metric.MeanSquaredError.params),
+                    torchmetrics.MeanSquaredError(
+                        **config.metric.MeanSquaredError.params
+                    ),
                 )
             )
         elif metric_name == "MeanSquaredLogError":
@@ -49,7 +55,6 @@ def get_metrics(config):
 
 if __name__ == "__main__":
     import torch.nn as nn
-
     from utils.loader import load_config
 
     config = load_config()

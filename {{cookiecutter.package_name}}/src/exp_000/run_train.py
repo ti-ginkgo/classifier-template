@@ -14,12 +14,15 @@ import warnings
 
 import torch
 import wandb
-from pytorch_lightning import Trainer, seed_everything
-from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor, ModelCheckpoint
-from pytorch_lightning.loggers import CSVLogger, TensorBoardLogger, WandbLogger
-
 from ishtos_lightning_data_module import MyLightningDataModule
 from ishtos_lightning_module import MyLightningModule
+from pytorch_lightning import Trainer, seed_everything
+from pytorch_lightning.callbacks import (
+    EarlyStopping,
+    LearningRateMonitor,
+    ModelCheckpoint,
+)
+from pytorch_lightning.loggers import CSVLogger, TensorBoardLogger, WandbLogger
 from utils.loader import load_config
 
 warnings.filterwarnings("ignore")
@@ -39,14 +42,18 @@ def get_callbacks(config, fold):
         config.callback.model_loss_checkpoint.params.filename = (
             f"{config.callback.model_loss_checkpoint.params.filename}-{fold}"
         )
-        model_loss_checkpoint = ModelCheckpoint(**config.callback.model_loss_checkpoint.params)
+        model_loss_checkpoint = ModelCheckpoint(
+            **config.callback.model_loss_checkpoint.params
+        )
         callbacks.append(model_loss_checkpoint)
 
     if config.callback.model_score_checkpoint.enable:
         config.callback.model_score_checkpoint.params.filename = (
             f"{config.callback.model_score_checkpoint.params.filename}-{fold}"
         )
-        model_score_checkpoint = ModelCheckpoint(**config.callback.model_score_checkpoint.params)
+        model_score_checkpoint = ModelCheckpoint(
+            **config.callback.model_score_checkpoint.params
+        )
         callbacks.append(model_score_checkpoint)
 
     return callbacks
