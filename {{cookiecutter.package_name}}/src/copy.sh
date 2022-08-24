@@ -8,4 +8,4 @@ cp $src/*.py $target
 cp $src/*.sh $target
 cp -r $src/configs $target
 
-sed -i -e "s/$1/$2/g" $target/configs/config.yaml
+sed -i -e "s/$1/$2/g" $target/configs/config.yml

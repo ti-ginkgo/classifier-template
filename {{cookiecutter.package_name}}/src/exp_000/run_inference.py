@@ -12,6 +12,7 @@ import argparse
 import warnings
 
 import pandas as pd
+
 from ishtos_runner import Tester
 from utils.loader import load_config
 
@@ -29,7 +30,7 @@ def main(args):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config_name", type=str, default="config.yaml")
+    parser.add_argument("--config_name", type=str, default="config.yml")
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--ckpt", type=str, default="loss")
     return parser.parse_args()

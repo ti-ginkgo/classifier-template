@@ -39,13 +39,11 @@ class GradualWarmupSchedulerV2(GradualWarmupScheduler):
             return [base_lr * self.multiplier for base_lr in self.base_lrs]
         if self.multiplier == 1.0:
             return [
-                base_lr * (float(self.last_epoch) / self.total_epoch)
-                for base_lr in self.base_lrs
+                base_lr * (float(self.last_epoch) / self.total_epoch) for base_lr in self.base_lrs
             ]
         else:
             return [
-                base_lr
-                * ((self.multiplier - 1.0) * self.last_epoch / self.total_epoch + 1.0)
+                base_lr * ((self.multiplier - 1.0) * self.last_epoch / self.total_epoch + 1.0)
                 for base_lr in self.base_lrs
             ]
 
@@ -92,13 +90,13 @@ def get_scheduler(config, optimizer):
 
 
 if __name__ == "__main__":
+    from torch.optim.lr_scheduler import _LRScheduler
+
     from ishtos_models import get_model
     from ishtos_optimizers import get_optimizer
-    from torch.optim.lr_scheduler import _LRScheduler
     from utils.loader import load_config
 
-    config = load_config("config.yaml")
-
+    config = load_config()
     model = get_model(config)
     optimizer = get_optimizer(config, model.parameters())
     scheduler = get_scheduler(config, optimizer)

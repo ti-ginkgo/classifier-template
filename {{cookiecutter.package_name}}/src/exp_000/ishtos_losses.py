@@ -30,9 +30,7 @@ class FocalLoss(nn.Module):
         logit = logit.clamp(self.eps, 1.0 - self.eps)
         loss = F.nll_loss(torch.log(logit), target, reduction="none")
         loss = (
-            loss
-            * (1 - logit.gather(1, target.view((target.shape[0], 1))).squeeze(1))
-            ** self.gamma
+            loss * (1 - logit.gather(1, target.view((target.shape[0], 1))).squeeze(1)) ** self.gamma
         )
 
         if self.reduction == "none":
@@ -67,9 +65,7 @@ class OUSMLoss(nn.Module):
         super(OUSMLoss, self).__init__()
         self.base_loss_name = base_loss_name
         self.k = k
-        self.loss1 = get_base_loss(
-            base_loss_name=base_loss_name, reduction=base_reduction
-        )
+        self.loss1 = get_base_loss(base_loss_name=base_loss_name, reduction=base_reduction)
         self.loss2 = get_base_loss(base_loss_name=base_loss_name, reduction="none")
         self.trigger = trigger
         self.ousm = False
@@ -158,9 +154,7 @@ def get_losses(config):
         elif loss_name == "RMSELoss":
             losses.append((loss_weight, RMSELoss(**config.loss.RMSELoss.params)))
         elif loss_name == "SmoothL1Loss":
-            losses.append(
-                (loss_weight, nn.SmoothL1Loss(**config.loss.SmoothL1Loss.params))
-            )
+            losses.append((loss_weight, nn.SmoothL1Loss(**config.loss.SmoothL1Loss.params)))
         else:
             raise ValueError(f"Not supported loss: {loss_name}.")
     return losses
@@ -169,8 +163,7 @@ def get_losses(config):
 if __name__ == "__main__":
     from utils.loader import load_config
 
-    config = load_config("config.yaml")
-
+    config = load_config()
     losses = get_losses(config)
 
     assert all(isinstance(loss[0], int) for loss in losses)

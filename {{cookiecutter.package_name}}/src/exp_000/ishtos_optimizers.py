@@ -65,9 +65,7 @@ class SAM(Optimizer):
         assert (
             closure is not None
         ), "Sharpness Aware Minimization requires closure, but it was not provided"
-        closure = torch.enable_grad()(
-            closure
-        )  # the closure should do a full forward-backward pass
+        closure = torch.enable_grad()(closure)  # the closure should do a full forward-backward pass
 
         self.first_step(zero_grad=True)
         closure()
@@ -112,9 +110,7 @@ class MADGRAD(Optimizer):
         if eps < 0:
             raise ValueError("Eps must be non-negative")
 
-        defaults = dict(
-            lr=lr, eps=eps, momentum=momentum, weight_decay=weight_decay, k=0
-        )
+        defaults = dict(lr=lr, eps=eps, momentum=momentum, weight_decay=weight_decay, k=0)
         super().__init__(params, defaults)
 
         for group in self.param_groups:
@@ -161,9 +157,7 @@ class MADGRAD(Optimizer):
                 state = self.state[p]
 
                 if momentum != 0.0 and grad.is_sparse:
-                    raise RuntimeError(
-                        "momentum != 0 is not compatible with sparse gradients"
-                    )
+                    raise RuntimeError("momentum != 0 is not compatible with sparse gradients")
 
                 grad_sum_sq = state["grad_sum_sq"]
                 s = state["s"]
@@ -262,8 +256,7 @@ if __name__ == "__main__":
     from ishtos_models import get_model
     from utils.loader import load_config
 
-    config = load_config("config.yaml")
-
+    config = load_config()
     model = get_model(config)
     optimizer = get_optimizer(config, model.parameters())
 

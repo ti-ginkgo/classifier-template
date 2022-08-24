@@ -89,11 +89,10 @@ def get_transforms(config, phase):
 if __name__ == "__main__":
     from utils.loader import load_config
 
-    config = load_config("config.yaml")
+    config = load_config()
 
     config.transforms.train_version = "Av1"
     config.transforms.valid_version = "Av1"
-
     train_transform = get_transforms(config, "train")
     valid_transform = get_transforms(config, "valid")
 
@@ -102,7 +101,6 @@ if __name__ == "__main__":
 
     config.transforms.train_version = "Tv1"
     config.transforms.valid_version = "Tv1"
-
     train_transform = get_transforms(config, "train")
     valid_transform = get_transforms(config, "valid")
 

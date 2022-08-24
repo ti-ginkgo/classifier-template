@@ -19,8 +19,8 @@ def resolve_tuple(*args):
 OmegaConf.register_new_resolver("as_tuple", resolver=resolve_tuple)
 
 
-def load_config(config_name):
-    default_config = OmegaConf.load("./configs/default_config.yaml")
+def load_config(config_name="config.yml"):
+    default_config = OmegaConf.load("./configs/default_config.yml")
     config = OmegaConf.load(f"./configs/{config_name}")
     config = OmegaConf.merge(default_config, config)
 

@@ -134,7 +134,7 @@ def get_head(version, in_features, out_features):
 if __name__ == "__main__":
     from utils.loader import load_config
 
-    config = load_config("config.yaml")
+    config = load_config()
     model = get_model(config)
 
     assert isinstance(model, nn.Module)
